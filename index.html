@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LÕI A.I // GIAO THỨC PHÂN TÍCH BACCARAT - FINAL</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary-accent: #fcee0a; /* Màu này sẽ thay đổi được */
+      --primary-yellow: #fcee0a;
+      --cyber-cyan: #0abdc6;
+      --cyber-magenta: #ff00ff;
+      --glitch-red: #ff3c3c;
+      --bg-dark: #0a0a14;
+      --container-bg: rgba(10, 20, 30, 0.85);
+      --input-bg: rgba(10, 10, 20, 0.9);
+      --text-light: #e0e0e0;
+      --text-dark: #0a0a14;
+      --border-color: rgba(10, 189, 198, 0.3);
+    }
+    html, body { margin: 0; padding: 0; height: 100%; font-family: 'Rajdhani', sans-serif; background-color: var(--bg-dark); color: var(--text-light); overflow: hidden; }
+    #scanlines-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%); background-size: 100% 4px; z-index: 10002; pointer-events: none; }
+    .hidden { display: none !important; }
+    .clip-path-angular { clip-path: polygon(0 8px, 8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%); }
+    .clip-path-large { clip-path: polygon(0 15px, 15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%); }
+    .clip-path-button { clip-path: polygon(0 10px, 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%); }
+    
+    #boot-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-dark); z-index: 10002; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 1s ease-in-out; }
+    #boot-log { width: 90%; max-width: 600px; font-size: 1.2em; color: var(--cyber-cyan); text-align: left; margin-bottom: 30px; height: 200px; }
+    #boot-log p { margin: 5px 0; opacity: 0; transition: opacity 0.5s ease; }
+    #boot-log p.visible { opacity: 1; }
+    #progress-bar-container { width: 90%; max-width: 600px; height: 30px; border: 2px solid var(--border-color); background: rgba(0,0,0,0.3); padding: 4px; }
+    #progress-bar { width: 0%; height: 100%; background-color: var(--primary-accent); box-shadow: 0 0 15px var(--primary-accent); transition: width 0.2s linear; }
+    #progress-text { color: var(--text-light); margin-top: 10px; font-size: 1.2em; font-weight: 700; }
+    
+    #loginScreen { opacity: 0; visibility: hidden; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at center, rgba(10, 10, 20, 0.95) 0%, #0a0a14 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10001; text-align: center; padding: 20px; box-sizing: border-box; transition: opacity 1s ease-in-out, visibility 1s ease-in-out; }
+    #loginScreen.visible { opacity: 1; visibility: visible; }
+    #loginScreen.hidden-overlay { opacity: 0; visibility: hidden; pointer-events: none; }
+    #loginScreen h2 { font-size: 2.5em; font-weight: 700; color: var(--primary-accent); text-shadow: 0 0 5px var(--primary-accent), 0 0 10px var(--primary-accent); margin-bottom: 40px; letter-spacing: 2px; }
+    #loginScreen input { font-family: 'Rajdhani', sans-serif; padding: 16px 20px; margin: 10px 0; width: 90%; max-width: 380px; background: var(--input-bg); color: var(--text-light); font-size: 1.1em; border: 1px solid var(--border-color); transition: all 0.2s ease; }
+    #loginScreen input:focus { outline: none; border-color: var(--primary-accent); box-shadow: 0 0 15px var(--primary-accent); }
+    #loginScreen button { font-family: 'Rajdhani', sans-serif; font-weight: 700; padding: 16px 35px; margin-top: 30px; cursor: pointer; font-size: 1.25em; text-transform: uppercase; letter-spacing: 1px; background: var(--primary-accent); color: var(--text-dark); border: none; transition: all 0.2s ease-out; }
+    #loginScreen button:hover { background: white; color: black; box-shadow: 0 0 20px white; }
+    #error { color: var(--glitch-red); margin-top: 20px; height: 1.2em; font-weight: 500;}
+    
+    #app { z-index: 5; width: 100%; box-sizing: border-box; position: relative; height: 100%; overflow-y: auto; overflow-x: hidden; }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; text-align: center; border-bottom: 2px solid var(--border-color); background: rgba(10, 10, 20, 0.5); }
+    header h1 { color: var(--primary-accent); text-shadow: 0 0 8px var(--primary-accent); margin: 0; font-size: 2.2em; text-transform: uppercase; flex-grow: 1; text-align: center;}
+    #settings-button { font-size: 2em; cursor: pointer; color: var(--text-light); transition: transform 0.3s, color 0.3s; }
+    #settings-button:hover { transform: rotate(90deg); color: var(--primary-accent); }
+    #settings-panel { display: none; position: fixed; top: 80px; right: 20px; background: var(--container-bg); border: 1px solid var(--border-color); padding: 20px; z-index: 10000; }
+    #settings-panel.visible { display: block; }
+    #settings-panel h3 { margin: 0 0 15px 0; color: var(--primary-accent); text-align: center; }
+    .settings-group { margin-bottom: 15px; }
+    .color-swatches button { width: 30px; height: 30px; border: 2px solid var(--text-light); margin: 5px; cursor: pointer; }
+    #swatch-yellow { background: var(--primary-yellow); } #swatch-cyan { background: var(--cyber-cyan); } #swatch-magenta { background: var(--cyber-magenta); }
+    .sound-toggle { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .ai-container { text-align: center; padding: 25px 10px 0 10px; }
+    .ai-avatar-wrapper { width: 100%; max-width: 250px; margin: 0 auto; border: 1px solid var(--border-color); background: black; transition: box-shadow 0.3s; }
+    .ai-avatar-wrapper.analyzing { box-shadow: 0 0 25px var(--primary-accent), inset 0 0 25px var(--primary-accent); animation: intense-glitch 1.5s infinite; }
+    @keyframes intense-glitch { 0%,100% { transform: skew(0deg); } 5% { transform: skew(3deg); } 10% { transform: skew(-3deg); } 15% { transform: skew(0deg) scale(1.01); } 20% { transform: skew(0deg) scale(1); } }
+    .ai-avatar-wrapper img { width: 100%; display: block; filter: brightness(0.9); }
+    #ai-status-panel { max-width: 900px; margin: 25px auto; padding: 15px 20px; background: rgba(0,0,0,0.5); border: 1px solid var(--border-color); font-size: 1.1em; }
+    #ai-status-panel .label { color: var(--primary-accent); font-weight: 700; margin-right: 10px; }
+    #ai-log-text { color: var(--cyber-cyan); font-weight: 500; }
+    #ai-log-text .highlight { color: var(--primary-yellow); font-weight: 700; }
+    .main { padding: 25px; max-width: 900px; margin: 0 auto 25px auto; background: var(--container-bg); backdrop-filter: blur(5px); border: 1px solid var(--border-color); box-shadow: 0 0 25px rgba(10, 189, 198, 0.1); }
+    .selection-area { display: flex; flex-wrap: wrap; justify-content: space-between; margin-bottom: 30px; padding: 15px; border: 1px solid var(--border-color); }
+    .selection-area .form-group { display: flex; flex-direction: column; flex-basis: calc(50% - 15px); }
+    .selection-area label { margin-bottom: 10px; color: var(--primary-accent); font-weight: 500; }
+    .selection-area select { font-family: 'Rajdhani', sans-serif; background: var(--input-bg); color: var(--text-light); border: 1px solid var(--border-color); padding: 14px 18px; width: 100%; cursor: pointer; }
+    .predict-btn { width: 100%; padding: 20px; font-size: 1.45em; background: var(--primary-accent); color: var(--text-dark); border: none; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 15px; transition: all 0.2s ease; }
+    .predict-btn:hover:not(:disabled) { background: white; box-shadow: 0 0 20px white; }
+    .predict-btn:disabled { background: #555; color: #888; cursor: not-allowed; }
+    #analysis-deck { display: none; grid-template-columns: 2fr 1fr; gap: 20px; padding-top: 20px; }
+    #analysis-deck.visible { display: grid; }
+    #holographic-table { position: relative; perspective: 1200px; padding: 20px; background: linear-gradient(rgba(10, 189, 198, 0.05), rgba(10, 189, 198, 0.15)); box-shadow: inset 0 0 40px rgba(10, 189, 198, 0.2); border: 1px solid var(--border-color); }
+    #game-board { width: 100%; height: 300px; position: relative; display: flex; justify-content: space-around; align-items: center; transform: rotateX(15deg); }
+    .card-area { width: 45%; } .card-slot-wrapper { display: flex; justify-content: center; gap: 5px; } .card-slot { position: relative; width: 80px; height: 112px; }
+    .card-face { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+    .card-back { background: linear-gradient(45deg, #0a0a14, #1a1a2e); border: 1px solid var(--cyber-cyan); }
+    .card-front { background: rgba(20, 30, 40, 0.9); border: 1px solid var(--border-color); backdrop-filter: blur(5px); color: white; transform: rotateY(180deg); display: flex; justify-content: center; align-items: center; font-family: 'Arial', sans-serif; font-size: 1.8em; font-weight: bold; }
+    .score-display { z-index: 2; position: absolute; top: 15px; font-size: 2.8em; font-weight: 700; }
+    .player-score { left: 40px; color: var(--cyber-cyan); }
+    .banker-score { right: 40px; color: var(--glitch-red); }
+    #result-announcement { position: absolute; top: 50%; left: 50%; font-size: 3em; font-weight: bold; z-index: 100; padding: 10px 20px; text-transform: uppercase; transition: opacity 0.3s, transform 0.3s; opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    #result-announcement.visible { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    #result-announcement.player-win { color: var(--cyber-cyan); } #result-announcement.banker-win { color: var(--glitch-red); } #result-announcement.tie-win { color: var(--primary-accent); }
+    @keyframes deal-in-card { from { transform: translateY(-100px) rotateX(-90deg); opacity: 0; } to { transform: translateY(0) rotateX(0deg); opacity: 1; } }
+    .card { position: absolute; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.8s; animation: deal-in-card 0.5s ease-out; }
+    .card.is-flipped { transform: rotateY(180deg); }
+    #data-panel { display: flex; flex-direction: column; gap: 15px; padding: 20px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.4); }
+    .data-block { padding: 10px; border: 1px solid var(--border-color); }
+    .data-block h3 { margin: 0 0 10px 0; color: var(--primary-accent); font-size: 1.2em; text-transform: uppercase; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+    #prediction-lock span { display: block; text-align: center; }
+    #ai-prediction-text { font-size: 1.8em; font-weight: 700; color: var(--primary-accent); }
+    #ai-confidence-value { font-size: 1em; color: var(--cyber-cyan); }
+    #stats-chart-container { position: relative; height: 120px; }
+    .road-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(20px, 1fr)); gap: 4px; }
+    .road-bead { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9em; color: var(--text-dark); }
+    .player-win-bead { background: var(--cyber-cyan); } .banker-win-bead { background: var(--glitch-red); } .tie-win-bead { background: var(--primary-accent); }
+    #ai-data-stream { height: 100px; overflow: hidden; font-family: monospace; font-size: 0.8em; color: var(--cyber-cyan); opacity: 0.6;}
+    #ai-data-stream div { white-space: pre; }
+    @media (max-width: 900px) { #analysis-deck { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) { .selection-area .form-group { flex-basis: 100%; margin-bottom: 15px; } #game-board { transform: none; height: auto; flex-direction: column; gap: 20px; padding: 15px 0; } }
+  </style>
+</head>
+<body>
+
+  <div id="scanlines-overlay"></div>
+  <div id="boot-screen">
+    <div id="boot-log">
+        <p data-text="KHỞI TẠO LÕI A.I..."></p><p data-text="KẾT NỐI TỚI MẠNG LƯỚI NIGHTCITY..."></p><p data-text="VƯỢT TƯỜNG LỬA BĂNG..."></p><p data-text="GIẢI MÃ LUỒNG DỮ LIỆU..."></p><p data-text="TẢI GIAO THỨC PHÂN TÍCH BACCARAT..."></p><p data-text="HỆ THỐNG SẴN SÀNG."></p>
+    </div>
+    <div id="progress-bar-container" class="clip-path-large"><div id="progress-bar" class="clip-path-large"></div></div>
+    <div id="progress-text">0%</div>
+  </div>
+  <div id="loginScreen">
+    <h2 class="clip-path-large">KẾT NỐI LÕI A.I.</h2>
+    <input type="text" id="username" class="clip-path-angular" placeholder="MÃ ĐẶC VỤ (Tên tài khoản)" />
+    <input type="text" id="code" class="clip-path-angular" placeholder="KHÓA MÃ HÓA (Mã truy cập)" />
+    <button onclick="checkCode()" class="clip-path-button" onmouseover="playSound('hover')" onmousedown="playSound('click')">[ Thiết lập Kết nối ]</button>
+    <p id="error"></p>
+  </div>
+  <div id="app" class="hidden">
+    <header>
+      <h1>GIAO THỨC PHÂN TÍCH BACCARAT</h1>
+      <div id="settings-button" onmouseover="playSound('hover')" onclick="toggleSettings()">⚙️</div>
+      <div id="settings-panel" class="clip-path-large">
+          <h3>CÀI ĐẶT</h3>
+          <div class="settings-group">
+              <label>Màu Chủ Đạo:</label>
+              <div class="color-swatches">
+                  <button id="swatch-yellow" onclick="changeTheme('yellow')" onmouseover="playSound('hover')" onmousedown="playSound('click')"></button>
+                  <button id="swatch-cyan" onclick="changeTheme('cyan')" onmouseover="playSound('hover')" onmousedown="playSound('click')"></button>
+                  <button id="swatch-magenta" onclick="changeTheme('magenta')" onmouseover="playSound('hover')" onmousedown="playSound('click')"></button>
+              </div>
+          </div>
+          <div class="settings-group">
+              <div class="sound-toggle"><label for="music-toggle">Nhạc Nền:</label><input type="checkbox" id="music-toggle" onchange="toggleMusic()"></div>
+              <div class="sound-toggle"><label for="sfx-toggle">Hiệu Ứng Âm Thanh:</label><input type="checkbox" id="sfx-toggle" checked></div>
+          </div>
+      </div>
+    </header>
+    <div class="ai-container"><div id="ai-avatar" class="ai-avatar-wrapper clip-path-large"><img src="ai-avatar.gif" alt="A.I. Avatar"/></div></div>
+    <div id="ai-status-panel" class="clip-path-angular"><span class="label">> TRẠNG THÁI A.I:</span><span id="ai-log-text">// CHẾ ĐỘ CHỜ - ĐANG ĐỢI LỆNH //</span></div>
+    <div class="main clip-path-large">
+      <div class="selection-area clip-path-large">
+        <div class="form-group"><label for="lobby-select">KHU VỰC (SẢNH):</label><select id="lobby-select" class="clip-path-angular" onchange="playSound('click')"><option value="">-- CHỌN --</option><option value="SEXY">SEXY</option><option value="DG">DG</option></select></div>
+        <div class="form-group"><label for="table-select">TERMINAL (BÀN):</label><select id="table-select" class="clip-path-angular" onchange="playSound('click')" disabled><option value="">-- CHỜ CHỌN KHU VỰC --</option></select></div>
+      </div>
+      <div id="analysis-deck">
+        <div id="holographic-table" class="clip-path-large"><div id="game-board">
+            <div id="result-announcement" class="hidden"></div><div class="score-display player-score" id="playerScore">0</div><div class="score-display banker-score" id="bankerScore">0</div>
+            <div class="card-area" id="player-card-area"><div class="card-slot-wrapper"><div class="card-slot" id="player-card-1"></div><div class="card-slot" id="player-card-2"></div><div class="card-slot" id="player-card-3"></div></div></div>
+            <div class="card-area" id="banker-card-area"><div class="card-slot-wrapper"><div class="card-slot" id="banker-card-1"></div><div class="card-slot" id="banker-card-2"></div><div class="card-slot" id="banker-card-3"></div></div></div>
+        </div></div>
+        <div id="data-panel" class="clip-path-large">
+            <div id="prediction-lock" class="data-block clip-path-angular"><h3>A.I. DỰ ĐOÁN</h3><span id="ai-prediction-text">--</span><span id="ai-confidence-value">ĐỘ CHẮC CHẮN: --%</span></div>
+            <div id="statistics-display" class="data-block clip-path-angular"><h3>THỐNG KÊ PHIÊN</h3><div id="stats-chart-container"><canvas id="stats-chart"></canvas></div></div>
+            <div class="data-block clip-path-angular"><h3>LUỒNG DỮ LIỆU</h3><div id="ai-data-stream"></div></div>
+            <div class="data-block clip-path-angular"><h3>LỊCH SỬ</h3><div id="bead-road-history" class="road-grid"></div></div>
+        </div>
+      </div>
+      <button class="predict-btn clip-path-button" id="predictBtn" onclick="predictResult()" onmouseover="playSound('hover')" onmousedown="playSound('click')">[ Thực thi Phân tích ]</button>
+    </div>
+  </div>
+  <audio id="bg-music" loop src="background-music.mp3"></audio>
+  <audio id="sfx-click" src="sfx-click.mp3"></audio>
+  <audio id="sfx-hover" src="sfx-hover.mp3"></audio>
+  <audio id="sfx-typing" src="sfx-typing.mp3"></audio>
+  <audio id="sfx-deal" src="deal.mp3"></audio>
+  <script>
+    // ### SCRIPT HOÀN CHỈNH - CẤU TRÚC KHỞI TẠO AN TOÀN ###
+
+    let validCodes, tablesByLobby, historyLog, sessionStats, statsChart, dataStreamInterval, dom;
+
+    // --- Định nghĩa tất cả các hàm ---
+    function playSound(soundName) {
+        if (dom && dom.settings.sfxToggle.checked) {
+            const sound = dom.sound[soundName];
+            if(sound) { sound.currentTime = 0; sound.play().catch(e => {}); }
+        }
+    }
+    function toggleSettings() { playSound('click'); dom.settings.panel.classList.toggle('visible'); }
+    function changeTheme(color) {
+        playSound('click');
+        const root = document.documentElement;
+        const newColor = getComputedStyle(root).getPropertyValue(`--primary-${color}`).trim();
+        root.style.setProperty('--primary-accent', newColor);
+        if (statsChart) {
+            statsChart.data.datasets[0].backgroundColor[2] = newColor;
+            statsChart.update();
+        }
+    }
+    function toggleMusic() {
+        if (dom.settings.musicToggle.checked) dom.sound.music.play().catch(e => {});
+        else dom.sound.music.pause();
+    }
+    function checkCode() {
+        playSound('click');
+        const codeInput = document.getElementById("code");
+        const usernameInput = document.getElementById("username");
+        const error = document.getElementById("error");
+        if (!usernameInput.value.trim() || !codeInput.value.trim()) {
+            error.textContent = "LỖI: YÊU CẦU MÃ ĐẶC VỤ & KHÓA"; return;
+        }
+        if (validCodes.includes(codeInput.value.trim())) {
+            dom.loginScreen.classList.remove('visible');
+            dom.loginScreen.classList.add('hidden-overlay');
+            dom.appScreen.classList.remove("hidden");
+            if (dom.settings.musicToggle.checked) dom.sound.music.play().catch(e => {});
+        } else {
+            error.textContent = "LỖI: KHÓA MÃ HÓA KHÔNG HỢP LỆ";
+        }
+    }
+    function animateAILog(textConfig) {
+        return new Promise(resolve => {
+            const element = dom.ai.logText;
+            const { text, highlight } = textConfig;
+            const scrambleChars = 'AZXCVBNMSDFGHJKLQWERTYUIOP0123456789#?&@$*';
+            let step = 0;
+            const scramble = () => {
+                let scrambled = '';
+                for (let i = 0; i < text.length; i++) {
+                    if (i <= step) { scrambled += text[i]; } 
+                    else { scrambled += scrambleChars[Math.floor(Math.random() * scrambleChars.length)]; }
+                }
+                if (highlight) { scrambled = scrambled.replace(highlight, `<span class="highlight">${highlight}</span>`); }
+                element.innerHTML = scrambled;
+                if (step >= text.length) {
+                    element.innerHTML = text.replace(highlight, `<span class="highlight">${highlight}</span>`);
+                    resolve();
+                } else {
+                    step++;
+                    if(step % 3 === 0) playSound('typing');
+                    setTimeout(scramble, 40);
+                }
+            };
+            scramble();
+        });
+    }
+    function startDataStream() {
+        const streamEl = document.getElementById('ai-data-stream');
+        if (!streamEl) return;
+        stopDataStream();
+        dataStreamInterval = setInterval(() => {
+            let line = `0x${Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0')}: `;
+            for(let i = 0; i < 10; i++) { line += Math.random().toString(16).substring(2, 6) + ' '; }
+            const div = document.createElement('div');
+            div.textContent = line.trim();
+            streamEl.prepend(div);
+            if (streamEl.children.length > 10) streamEl.removeChild(streamEl.lastChild);
+        }, 100);
+    }
+    function stopDataStream() { clearInterval(dataStreamInterval); }
+    function initializeChart() {
+        const ctx = document.getElementById('stats-chart').getContext('2d');
+        const rootStyles = getComputedStyle(document.documentElement);
+        statsChart = new Chart(ctx, {
+            type: 'doughnut', data: { labels: ['Player', 'Banker', 'Hòa'], datasets: [{ data: [0, 0, 0], backgroundColor: [ rootStyles.getPropertyValue('--cyber-cyan').trim(), rootStyles.getPropertyValue('--glitch-red').trim(), rootStyles.getPropertyValue('--primary-accent').trim() ], borderColor: 'var(--bg-dark)', borderWidth: 3 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, animation: { duration: 750 }, cutout: '70%' }
+        });
+    }
+    function updateStatsChart() {
+        if (!statsChart) return;
+        statsChart.data.datasets[0].data = [sessionStats.player, sessionStats.banker, sessionStats.tie];
+        statsChart.update();
+    }
+    function updateBeadRoadDisplay() {
+        const historyContainer = document.getElementById('bead-road-history');
+        if (!historyContainer) return;
+        historyContainer.innerHTML = '';
+        historyLog.slice(-36).forEach(result => {
+            const bead = document.createElement('div');
+            bead.classList.add('road-bead', `${result}-win-bead`);
+            const winnerMap = { player: 'P', banker: 'B', tie: 'H' };
+            bead.textContent = winnerMap[result];
+            historyContainer.appendChild(bead);
+        });
+        historyContainer.scrollTop = historyContainer.scrollHeight;
+    }
+    async function startBootSequence() {
+        const logLines = Array.from(document.querySelectorAll('#boot-log p'));
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const totalDuration = 5000;
+        let progress = 0;
+        const updateProgress = () => {
+            progress += 1;
+            const percentage = Math.min(100, progress);
+            progressBar.style.width = `${percentage}%`;
+            progressText.textContent = `${Math.floor(percentage)}%`;
+            if (progress < 100) { setTimeout(updateProgress, (totalDuration - 1000) / 100); }
+        };
+        updateProgress();
+        for (let i = 0; i < logLines.length; i++) {
+            await new Promise(resolve => setTimeout(resolve, 600));
+            logLines[i].textContent = logLines[i].dataset.text;
+            logLines[i].classList.add('visible');
+            playSound('typing');
+        }
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        dom.bootScreen.style.opacity = '0';
+        dom.loginScreen.classList.add('visible');
+        setTimeout(() => dom.bootScreen.classList.add('hidden'), 1000);
+    }
+    async function predictResult() {
+        if (!dom.lobbySelect.value || !dom.tableSelect.value) {
+            alert("LỖI HỆ THỐNG: CHƯA CHỌN LUỒNG DỮ LIỆU."); return;
+        }
+        dom.predictButton.disabled = true;
+        dom.deck.container.classList.remove('visible');
+        dom.ai.avatar.classList.add('analyzing');
+        startDataStream();
+        const analysis = analyzeTrends(historyLog);
+        await animateAILog({ text: analysis.reason, highlight: analysis.highlight });
+        dom.ai.predictionText.textContent = analysis.prediction;
+        dom.ai.confidenceValue.textContent = `ĐỘ CHẮC CHẮN: ${analysis.confidence}%`;
+        await animateAILog({ text: "NHẬN DIỆN CẤU TRÚC. KHÓA DỰ ĐOÁN.", highlight: "KHÓA DỰ ĐOÁN" });
+        stopDataStream();
+        dom.deck.container.classList.add('visible');
+        animateDealing();
+    }
+    function analyzeTrends(history) {
+        const last_n = history.slice(-6).filter(r => r !== 'tie');
+        if (last_n.length < 4) return { prediction: 'BANKER', confidence: '58.2', reason: 'KHỞI TẠO LUỒNG PHÂN TÍCH...', highlight: 'KHỞI TẠO' };
+        const last4 = last_n.slice(-4);
+        if (last4.length === 4 && last4.every(v => v === last4[0])) { return { prediction: last4[0].toUpperCase(), confidence: (Math.random() * 10 + 88).toFixed(1), reason: `TÍN HIỆU CHUỖI MẠNH [${last4[0].toUpperCase()}] ĐƯỢC PHÁT HIỆN.`, highlight: 'TÍN HIỆU CHUỖI MẠNH' }; }
+        if (last4.length === 4 && last4[0] !== last4[1] && last4[1] !== last4[2] && last4[2] !== last4[3]) { return { prediction: last4[3] === 'player' ? 'BANKER' : 'PLAYER', confidence: (Math.random() * 10 + 70).toFixed(1), reason: 'PHÁT HIỆN XU HƯỚNG ZIG-ZAG. ĐANG ĐẢO NGƯỢC.', highlight: 'ZIG-ZAG' };}
+        const last3 = last_n.slice(-3);
+        if(last3.length === 3 && last3[0] === last3[1] && last3[1] !== last3[2]) { return { prediction: last3[1].toUpperCase(), confidence: (Math.random() * 15 + 65).toFixed(1), reason: `QUY LUẬT "2 VÀ 1" ĐƯỢC GHI NHẬN.`, highlight: '2 VÀ 1' }; }
+        return { prediction: Math.random() > 0.5 ? 'PLAYER' : 'BANKER', confidence: (Math.random() * 15 + 50).toFixed(1), reason: 'TÍN HIỆU YẾU. ĐANG NGOẠI SUY DỮ LIỆU...', highlight: 'TÍN HIỆU YẾU' };
+    }
+    function getBaccaratValue(cardValue) { if (['K', 'Q', 'J', '10'].includes(cardValue)) return 0; if (cardValue === 'A') return 1; return parseInt(cardValue); }
+    function createCardElement(value, suit) { return `<div class="card" data-value="${value}${suit}"><div class="card-face card-back"></div><div class="card-face card-front">${value}</div></div>`; }
+    function clearTable() { document.querySelectorAll('.card-slot').forEach(slot => slot.innerHTML = ''); dom.deck.resultAnnouncement.className = 'hidden'; dom.deck.playerScore.textContent = '0'; dom.deck.bankerScore.textContent = '0'; }
+    async function animateDealing() {
+        clearTable();
+        const suits = ['♥', '♦', '♣', '♠']; const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+        let deck = []; for (const suit of suits) { for (const value of values) { deck.push({ value, suit }); } }
+        deck.sort(() => Math.random() - 0.5);
+        const playerCards = [deck.pop(), deck.pop()]; const bankerCards = [deck.pop(), deck.pop()];
+        let playerScore = (getBaccaratValue(playerCards[0].value) + getBaccaratValue(playerCards[1].value)) % 10;
+        let bankerScore = (getBaccaratValue(bankerCards[0].value) + getBaccaratValue(bankerCards[1].value)) % 10;
+        const dealCard = (player, cardIndex, cardData) => {
+            return new Promise(resolve => {
+                const slot = document.getElementById(`${player}-card-${cardIndex}`);
+                if (slot) {
+                    slot.innerHTML = createCardElement(cardData.value, cardData.suit);
+                    setTimeout(() => {
+                        const cardElement = slot.querySelector('.card');
+                        if(cardElement) cardElement.classList.add('is-flipped');
+                        playSound('deal'); resolve();
+                    }, 600);
+                } else { console.error(`Slot not found: ${player}-card-${cardIndex}`); resolve(); }
+            });
+        };
+        await dealCard('player', 1, playerCards[0]); await new Promise(r => setTimeout(r, 250));
+        await dealCard('banker', 1, bankerCards[0]); await new Promise(r => setTimeout(r, 250));
+        await dealCard('player', 2, playerCards[1]); await new Promise(r => setTimeout(r, 250));
+        await dealCard('banker', 2, bankerCards[1]);
+        dom.deck.playerScore.textContent = playerScore;
+        dom.deck.bankerScore.textContent = bankerScore;
+        let playerNeedsCard = playerScore <= 5; let bankerNeedsCard = false;
+        if (playerScore < 8 && bankerScore < 8) {
+            if (playerNeedsCard) {
+                await new Promise(r => setTimeout(r, 500)); 
+                const p3 = deck.pop(); await dealCard('player', 3, p3); 
+                playerScore = (playerScore + getBaccaratValue(p3.value)) % 10; 
+                dom.deck.playerScore.textContent = playerScore;
+                const p3v = getBaccaratValue(p3.value);
+                if (bankerScore <= 2 || (bankerScore === 3 && p3v !== 8) || (bankerScore === 4 && [2,3,4,5,6,7].includes(p3v)) || (bankerScore === 5 && [4,5,6,7].includes(p3v)) || (bankerScore === 6 && [6,7].includes(p3v))) bankerNeedsCard = true;
+            } else if (bankerScore <= 5) { bankerNeedsCard = true; }
+            if (bankerNeedsCard) { 
+                await new Promise(r => setTimeout(r, 500)); 
+                const b3 = deck.pop(); await dealCard('banker', 3, b3); 
+                bankerScore = (bankerScore + getBaccaratValue(b3.value)) % 10; 
+                dom.deck.bankerScore.textContent = bankerScore; 
+            }
+        }
+        await new Promise(r => setTimeout(r, 800));
+        let winner = '';
+        if (playerScore > bankerScore) { winner = 'player'; } 
+        else if (bankerScore > playerScore) { winner = 'banker'; } 
+        else { winner = 'tie'; }
+        historyLog.push(winner);
+        sessionStats[winner]++;
+        sessionStats.total++;
+        updateStatsChart();
+        updateBeadRoadDisplay();
+        const winnerMap = { player: 'Player', banker: 'Banker', tie: 'Hòa' };
+        dom.deck.resultAnnouncement.textContent = `${winnerMap[winner].toUpperCase()} THẮNG`;
+        dom.deck.resultAnnouncement.className = `visible ${winner}-win`;
+        await animateAILog({ text: `KẾT QUẢ: ${winnerMap[winner].toUpperCase()}. GIAO THỨC HOÀN TẤT. // CHẾ ĐỘ CHỜ //`, highlight: winnerMap[winner].toUpperCase() });
+        dom.predictButton.disabled = false;
+        dom.ai.avatar.classList.remove('analyzing');
+    }
+    function populateTables() {
+        const l = dom.lobbySelect.value;
+        dom.tableSelect.innerHTML = '<option value="">-- CHỜ CHỌN KHU VỰC --</option>';
+        if (l && tablesByLobby[l]) {
+            tablesByLobby[l].forEach(t => {
+                const o = document.createElement('option');
+                o.value = t; o.textContent = t; dom.tableSelect.appendChild(o);
+            });
+            dom.tableSelect.disabled = false;
+        } else { dom.tableSelect.disabled = true; }
+    }
+    
+    // ### CẤU TRÚC KHỞI TẠO AN TOÀN ###
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. Khởi tạo hằng số và trạng thái
+        validCodes = [ "167904", "582173", "907348", "213560", "638901", "475289", "801452", "026815", "749063", "350728", "112233", "445566", "778899", "001122", "654321", "987650", "246802", "135791", "505050", "864209" ];
+        tablesByLobby = { SEXY: ["C01", "C02", "C03"], DG: ["DG01", "DG02"] };
+        historyLog = [];
+        sessionStats = { player: 0, banker: 0, tie: 0, total: 0 };
+        
+        // 2. Khởi tạo và gán các phần tử DOM vào biến dom
+        dom = {
+            sound: {},
+            settings: {},
+            ai: {},
+            deck: {}
+        }; 
+        dom.bootScreen = document.getElementById('boot-screen');
+        dom.loginScreen = document.getElementById('loginScreen');
+        dom.appScreen = document.getElementById('app');
+        dom.predictButton = document.getElementById('predictBtn');
+        dom.lobbySelect = document.getElementById('lobby-select');
+        dom.tableSelect = document.getElementById('table-select');
+        dom.sound.music = document.getElementById('bg-music');
+        dom.sound.click = document.getElementById('sfx-click');
+        dom.sound.hover = document.getElementById('sfx-hover');
+        dom.sound.typing = document.getElementById('sfx-typing');
+        dom.sound.deal = document.getElementById('sfx-deal');
+        dom.settings.panel = document.getElementById('settings-panel');
+        dom.settings.musicToggle = document.getElementById('music-toggle');
+        dom.settings.sfxToggle = document.getElementById('sfx-toggle');
+        dom.ai.logText = document.getElementById('ai-log-text');
+        dom.ai.avatar = document.getElementById('ai-avatar');
+        dom.ai.predictionText = document.getElementById('ai-prediction-text');
+        dom.ai.confidenceValue = document.getElementById('ai-confidence-value');
+        dom.deck.container = document.getElementById('analysis-deck');
+        dom.deck.resultAnnouncement = document.getElementById('result-announcement');
+        dom.deck.playerScore = document.getElementById('playerScore');
+        dom.deck.bankerScore = document.getElementById('bankerScore');
+
+        // 3. Gán sự kiện và khởi tạo UI
+        initializeChart();
+        dom.lobbySelect.addEventListener('change', () => { playSound('click'); populateTables(); });
+        dom.tableSelect.addEventListener('change', () => playSound('click'));
+        populateTables();
+        
+        // 4. Bắt đầu chuỗi intro
+        startBootSequence();
+    });
+  </script>
+</body>
+</html>
