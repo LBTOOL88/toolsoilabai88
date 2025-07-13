@@ -42,60 +42,49 @@
     #progress-bar { width: 0%; height: 100%; background-color: var(--primary-accent); box-shadow: 0 0 15px var(--primary-accent); transition: width 0.2s linear; }
     #progress-text { color: var(--text-light); margin-top: 10px; font-size: 1.2em; font-weight: 700; }
 
-    /* === CSS CHO MÀN HÌNH ĐĂNG NHẬP (NỀN MATRIX) === */
+    /* === CSS CHO MÀN HÌNH CHỌN LỰA === */
+    #choiceScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10001; text-align: center; padding: 20px; box-sizing: border-box; }
+    #choice-content { z-index: 1; background: rgba(10,10,20,0.8); backdrop-filter: blur(5px); padding: 40px 30px; border: 1px solid var(--border-color); width: 100%; max-width: 500px; display: flex; flex-direction: column; align-items: center;}
+    #choice-content h2 { font-size: 2.2em; font-weight: 700; color: var(--primary-accent); text-shadow: 0 0 5px var(--primary-accent), 0 0 10px var(--primary-accent); margin-top: 0; margin-bottom: 30px; letter-spacing: 2px; }
+    #choice-buttons { display: flex; flex-direction: column; gap: 20px; width: 100%; }
+    .choice-btn { font-family: 'Rajdhani', sans-serif; font-weight: 700; padding: 20px 35px; cursor: pointer; font-size: 1.3em; text-transform: uppercase; letter-spacing: 1px; background: var(--primary-accent); color: var(--text-dark); border: none; transition: all 0.2s ease-out; }
+    .choice-btn:hover { background: white; color: black; box-shadow: 0 0 20px white; }
+
+    /* === CSS CHO NÚT VIP === */
+    .choice-btn-vip {
+        background: linear-gradient(45deg, var(--glitch-red), var(--cyber-magenta));
+        color: white;
+        border: 2px solid var(--cyber-magenta);
+        animation: pulse-vip 2s infinite;
+    }
+    .choice-btn-vip:hover {
+        animation-play-state: paused;
+        box-shadow: 0 0 25px var(--cyber-magenta);
+    }
+    @keyframes pulse-vip {
+        0% { box-shadow: 0 0 5px var(--cyber-magenta); }
+        50% { box-shadow: 0 0 20px var(--glitch-red); }
+        100% { box-shadow: 0 0 5px var(--cyber-magenta); }
+    }
+    
+    /* === CSS CHO MÀN HÌNH ĐĂNG NHẬP === */
     #loginScreen { opacity: 0; visibility: hidden; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10001; text-align: center; padding: 20px; box-sizing: border-box; transition: opacity 1s ease-in-out, visibility 1s ease-in-out; }
     #loginScreen.visible { opacity: 1; visibility: visible; }
     #loginScreen.hidden-overlay { opacity: 0; visibility: hidden; pointer-events: none; }
     #matrix-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
     #login-content { z-index: 1; background: rgba(10,10,20,0.8); backdrop-filter: blur(5px); padding: 30px; border: 1px solid var(--border-color); width: 100%; max-width: 420px; display: flex; flex-direction: column; align-items: center;}
-    
-    #login-logo {
-        width: 150px;
-        height: 150px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin-bottom: 20px;
-        border: 3px solid var(--primary-accent);
-        box-shadow: 0 0 20px var(--primary-accent);
-    }
+    #login-logo { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; margin-bottom: 20px; border: 3px solid var(--primary-accent); box-shadow: 0 0 20px var(--primary-accent); }
     #loginScreen h2 { font-size: 2.2em; font-weight: 700; color: var(--primary-accent); text-shadow: 0 0 5px var(--primary-accent), 0 0 10px var(--primary-accent); margin-top: 0; margin-bottom: 15px; letter-spacing: 2px; }
-    
-    /* === CSS CHO BẢNG CẢNH BÁO MỚI === */
-    #login-warning {
-        background: var(--warning-bg);
-        border: 1px solid var(--primary-accent);
-        padding: 15px;
-        margin-bottom: 20px;
-        width: 90%;
-        max-width: 380px;
-    }
-    #login-warning p {
-        margin: 0 0 15px 0;
-        font-weight: 500;
-        line-height: 1.5;
-        color: var(--primary-yellow);
-    }
-    .register-btn {
-        background: var(--primary-accent);
-        color: var(--text-dark);
-        padding: 8px 20px;
-        text-decoration: none;
-        font-weight: 700;
-        text-transform: uppercase;
-        transition: all 0.3s ease;
-    }
-    .register-btn:hover {
-        background: white;
-        box-shadow: 0 0 15px white;
-    }
-    
+    #login-warning { background: var(--warning-bg); border: 1px solid var(--primary-accent); padding: 15px; margin-bottom: 20px; width: 90%; max-width: 380px; }
+    #login-warning p { margin: 0 0 15px 0; font-weight: 500; line-height: 1.5; color: var(--primary-yellow); }
+    .register-btn { background: var(--primary-accent); color: var(--text-dark); padding: 8px 20px; text-decoration: none; font-weight: 700; text-transform: uppercase; transition: all 0.3s ease; }
+    .register-btn:hover { background: white; box-shadow: 0 0 15px white; }
     #loginScreen input, .custom-select-wrapper { font-family: 'Rajdhani', sans-serif; margin: 8px 0; width: 90%; max-width: 380px; }
     #loginScreen input { padding: 14px 20px; background: var(--input-bg); color: var(--text-light); font-size: 1.1em; border: 1px solid var(--border-color); transition: all 0.2s ease; }
     #loginScreen input:focus { outline: none; border-color: var(--primary-accent); box-shadow: 0 0 15px var(--primary-accent); }
     #loginScreen button { font-family: 'Rajdhani', sans-serif; font-weight: 700; padding: 16px 35px; margin-top: 20px; cursor: pointer; font-size: 1.25em; text-transform: uppercase; letter-spacing: 1px; background: var(--primary-accent); color: var(--text-dark); border: none; transition: all 0.2s ease-out; }
     #loginScreen button:hover { background: white; color: black; box-shadow: 0 0 20px white; }
     #error { color: var(--glitch-red); margin-top: 20px; height: 1.2em; font-weight: 500;}
-
     .custom-select-wrapper { position: relative; }
     .custom-select-trigger { position: relative; padding: 14px 20px; background: var(--input-bg); color: var(--text-light); font-size: 1.1em; border: 1px solid var(--border-color); cursor: pointer; transition: all 0.2s ease; clip-path: polygon(0 8px, 8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%); }
     .custom-select-trigger::after { content: '▼'; position: absolute; right: 20px; top: 50%; transform: translateY(-50%); transition: transform 0.3s; }
@@ -107,29 +96,32 @@
     .custom-option:hover { background: var(--primary-accent); color: var(--text-dark); }
     .custom-option.selected { background: var(--primary-accent); color: var(--text-dark); font-weight: 700;}
 
-    #confirmation-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 20000; display: none; justify-content: center; align-items: center; }
-    #modal-content { background: var(--container-bg); border: 2px solid var(--primary-accent); padding: 30px; width: 90%; max-width: 500px; text-align: center; color: var(--text-light); box-shadow: 0 0 25px var(--primary-accent); }
-    #modal-content p { font-size: 1.2em; line-height: 1.6; margin-bottom: 30px;}
-    #modal-buttons button { padding: 12px 25px; margin: 0 10px; font-size: 1em; font-weight: 700; cursor: pointer; border: 1px solid var(--primary-accent); }
-    #modal-confirm { background: var(--primary-accent); color: var(--text-dark); }
-    #modal-cancel { background: transparent; color: var(--primary-accent); }
+    /* === CSS CHO CÁC MODAL === */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 20000; display: none; justify-content: center; align-items: center; }
+    .modal-content { background: var(--container-bg); border: 2px solid var(--primary-accent); padding: 30px; width: 90%; max-width: 500px; text-align: center; color: var(--text-light); box-shadow: 0 0 25px var(--primary-accent); }
+    .modal-content p { font-size: 1.2em; line-height: 1.6; margin-bottom: 30px;}
+    .modal-buttons button { padding: 12px 25px; margin: 0 10px; font-size: 1em; font-weight: 700; cursor: pointer; border: 1px solid var(--primary-accent); }
+    #modal-confirm, #vip-confirm { background: var(--primary-accent); color: var(--text-dark); }
+    #modal-cancel, #vip-cancel { background: transparent; color: var(--primary-accent); }
     
-    /* === CSS CHO BANNER MỚI === */
-    #login-footer {
-        position: absolute;
-        bottom: 10px;
-        left: 0;
-        width: 100%;
-        text-align: center;
-        font-size: 1em;
-        z-index: 2;
-        color: rgba(255,255,255,0.7);
-    }
-    #login-footer a {
-        color: var(--cyber-cyan);
-        text-decoration: none;
+    /* === CSS CẢNH BÁO VIP === */
+    #vip-warning-modal .modal-content { border-color: var(--glitch-red); box-shadow: 0 0 25px var(--glitch-red); }
+    #vip-warning-modal h3 { color: var(--glitch-red); text-shadow: 0 0 10px var(--glitch-red); margin: 0 0 20px 0; font-size: 1.5em; text-transform: uppercase; }
+    .blinking-warning {
         font-weight: 700;
+        color: var(--primary-yellow);
+        animation: blink-warning 1.5s infinite;
     }
+    @keyframes blink-warning {
+        0%, 100% { color: var(--primary-yellow); text-shadow: 0 0 5px var(--primary-yellow); }
+        50% { color: var(--text-light); text-shadow: none; }
+    }
+    #vip-warning-modal #vip-confirm { background: var(--glitch-red); color: white; border-color: var(--glitch-red); }
+    #vip-warning-modal #vip-cancel { background: transparent; color: var(--glitch-red); border-color: var(--glitch-red); }
+
+    /* === CSS BANNER === */
+    #login-footer { position: absolute; bottom: 10px; left: 0; width: 100%; text-align: center; font-size: 1em; z-index: 2; color: rgba(255,255,255,0.7); }
+    #login-footer a { color: var(--cyber-cyan); text-decoration: none; font-weight: 700; }
     #login-footer p { margin: 5px 0; }
     
     #app { z-index: 5; width: 100%; box-sizing: border-box; position: relative; height: 100%; overflow-y: auto; overflow-x: hidden; 
@@ -140,7 +132,7 @@
     }
     header { position:relative; z-index: 10; display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; text-align: center; border-bottom: 2px solid var(--border-color); background: rgba(10, 10, 20, 0.5); }
     header h1 { color: var(--primary-accent); text-shadow: 0 0 8px var(--primary-accent); margin: 0; font-size: 2.2em; text-transform: uppercase; flex-grow: 1; text-align: center;}
-    #settings-button { font-size: 2em; cursor: pointer; color: var(--text-light); transition: transform 0.3s, color 0.3s; }
+    #settings-button { font-size: 2em; cursor: pointer; color: var(--text-light); transition: transform 0.3s, color 0.3s; margin-left: 20px; }
     #settings-button:hover { transform: rotate(90deg); color: var(--primary-accent); }
     #settings-panel { display: none; position: fixed; top: 80px; right: 20px; background: var(--container-bg); border: 1px solid var(--border-color); padding: 20px; z-index: 10000; }
     #settings-panel.visible { display: block; }
@@ -149,6 +141,25 @@
     .color-swatches button { width: 30px; height: 30px; border: 2px solid var(--text-light); margin: 5px; cursor: pointer; }
     #swatch-yellow { background: var(--primary-yellow); } #swatch-cyan { background: var(--cyber-cyan); } #swatch-magenta { background: var(--cyber-magenta); }
     .sound-toggle { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    
+    /* === CSS HIỂN THỊ XU === */
+    #coin-display {
+        background: rgba(0,0,0,0.5);
+        border: 1px solid var(--border-color);
+        padding: 8px 15px;
+        font-size: 1.2em;
+        font-weight: 700;
+        color: var(--primary-accent);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    #coin-balance {
+        color: white;
+        min-width: 30px;
+        text-align: right;
+    }
+
     .ai-container { position:relative; z-index: 5; text-align: center; padding: 25px 10px 0 10px; }
     .ai-avatar-wrapper { width: 100%; max-width: 250px; margin: 0 auto; border: 1px solid var(--border-color); background: black; transition: box-shadow 0.3s; }
     .ai-avatar-wrapper.analyzing { box-shadow: 0 0 25px var(--primary-accent), inset 0 0 25px var(--primary-accent); animation: intense-glitch 1.5s infinite; }
@@ -163,20 +174,16 @@
     .selection-area .form-group { display: flex; flex-direction: column; flex-basis: calc(50% - 15px); }
     .selection-area label { margin-bottom: 10px; color: var(--primary-accent); font-weight: 500; }
     .selection-area select { font-family: 'Rajdhani', sans-serif; background: var(--input-bg); color: var(--text-light); border: 1px solid var(--border-color); padding: 14px 18px; width: 100%; cursor: pointer; }
-    
     #prediction-lock { padding: 20px; margin-top: 20px; margin-bottom: 20px; border: 2px solid var(--primary-accent); background: radial-gradient(ellipse at center, rgba(10, 20, 30, 0.95) 0%, #0a0a14 100%); box-shadow: 0 0 15px var(--primary-accent); min-height: 120px; display: flex; flex-direction: column; justify-content: center; }
     #prediction-lock h3 { margin: 0 0 10px 0; color: var(--primary-accent); font-size: 1.2em; text-transform: uppercase; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; text-align: center;}
     #prediction-lock span { display: block; text-align: center; }
     #ai-prediction-text { font-size: 1.8em; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
     #ai-confidence-value { font-size: 1.1em; color: var(--cyber-cyan); margin-top: 5px;}
-
     .predict-btn { width: 100%; padding: 20px; font-size: 1.45em; background: var(--primary-accent); color: var(--text-dark); border: none; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 15px; transition: all 0.2s ease; }
     .predict-btn:hover:not(:disabled) { background: white; box-shadow: 0 0 20px white; }
     .predict-btn:disabled { background: #555; color: #888; cursor: not-allowed; }
-    
     #analysis-deck { display: none; padding-top: 20px; }
     #analysis-deck.visible { display: block; }
-
     #data-panel { display: flex; flex-direction: column; gap: 15px; padding: 20px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.4); }
     .data-block { padding: 10px; border: 1px solid var(--border-color); }
     .data-block h3 { margin: 0 0 10px 0; color: var(--primary-accent); font-size: 1.2em; text-transform: uppercase; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
@@ -187,14 +194,15 @@
     #ai-data-stream { height: 100px; overflow: hidden; font-family: monospace; font-size: 0.8em; color: var(--cyber-cyan); opacity: 0.6;}
     #ai-data-stream div { white-space: pre; }
     
-    @media (max-width: 600px) {
-        #login-content { width: 95%; padding: 20px;}
+    @media (max-width: 768px) {
+        header { flex-direction: column; gap: 10px; padding-bottom: 10px; }
+        header h1 { font-size: 1.6em; order: 1; }
+        #coin-display { order: 2; }
+        #settings-button { position: absolute; top: 15px; right: 15px; order: 3; }
+        #login-content, #choice-content { width: 95%; padding: 20px;}
         #login-logo { width: 120px; height: 120px; }
-        #loginScreen h2 { font-size: 1.8em; margin-bottom: 15px; }
+        #loginScreen h2, #choice-content h2 { font-size: 1.8em; margin-bottom: 15px; }
         .main { padding: 15px; margin-bottom: 15px; }
-        header { padding: 10px 15px; position: relative; min-height: 80px; box-sizing: border-box; }
-        header h1 { font-size: 1.6em; width: 100%; text-align: center; padding-right: 40px; }
-        #settings-button { font-size: 1.8em; position: absolute; top: 50%; transform: translateY(-50%); right: 15px; }
         .ai-container { padding: 15px 10px 0 10px; }
         #ai-status-panel { font-size: 1em; padding: 12px 15px; }
         #ai-log-text { display: block; margin-top: 5px; }
@@ -213,6 +221,7 @@
 </head>
 <body>
   <div id="scanlines-overlay"></div>
+
   <div id="boot-screen">
     <div id="boot-log">
         <p data-text="KHỞI TẠO LÕI A.I..."></p><p data-text="KẾT NỐI TỚI MẠNG LƯỚI NIGHTCITY..."></p><p data-text="VƯỢT TƯỜNG LỬA BĂNG..."></p><p data-text="GIẢI MÃ LUỒNG DỮ LIỆU..."></p><p data-text="TẢI GIAO THỨC PHÂN TÍCH BACCARAT..."></p><p data-text="HỆ THỐNG SẴN SÀNG."></p>
@@ -220,8 +229,20 @@
     <div id="progress-bar-container" class="clip-path-large"><div id="progress-bar" class="clip-path-large"></div></div>
     <div id="progress-text">0%</div>
   </div>
+
+  <canvas id="matrix-canvas"></canvas>
+
+  <div id="choiceScreen" class="hidden">
+    <div id="choice-content" class="clip-path-large">
+        <h2>CHỌN GIAO THỨC</h2>
+        <div id="choice-buttons">
+            <button id="goto-ai-tool" class="choice-btn clip-path-button" onmouseover="playSound('hover')" onmousedown="playSound('click')">TOOL A.I THẾ HỆ 3</button>
+            <button id="goto-scan-tool" class="choice-btn choice-btn-vip clip-path-button" onmouseover="playSound('hover')" onmousedown="playSound('click')">TOOL QUÉT LÁ BÀI TRỰC TUYẾN</button>
+        </div>
+    </div>
+  </div>
+  
   <div id="loginScreen">
-    <canvas id="matrix-canvas"></canvas>
     <div id="login-content" class="clip-path-large">
         <img src="https://i.ibb.co/ynX669hj/LOGO.png" alt="Logo" id="login-logo">
         <h2>TOOL BCR A.I THẾ HỆ 3</h2>
@@ -252,9 +273,13 @@
         <p>LIÊN HỆ LONG BẢO : <a href="https://t.me/longbaoF168" target="_blank">https://t.me/longbaoF168</a></p>
     </footer>
   </div>
+
   <div id="app" class="hidden">
     <header>
       <h1>GIAO THỨC PHÂN TÍCH BACCARAT</h1>
+      <div id="coin-display" class="clip-path-angular hidden">
+          <span>XU: </span><span id="coin-balance">--</span> 🪙
+      </div>
       <div id="settings-button" onmouseover="playSound('hover')" onclick="toggleSettings()">⚙️</div>
       <div id="settings-panel" class="clip-path-large">
           <h3>CÀI ĐẶT</h3>
@@ -295,14 +320,25 @@
     </div>
   </div>
 
-  <div id="confirmation-modal" class="clip-path-large">
-      <div id="modal-content">
+  <div id="confirmation-modal" class="modal-overlay clip-path-large">
+      <div class="modal-content">
           <p>KHI KÍCH HOẠT CHẾ ĐỘ NÀY BẠN PHẢI ĐẢM BẢO RẰNG SẼ LUÔN ĐÁNH THEO CHỈ THỊ CỦA TÔI, NẾU ĐÁNH LỆCH TÔI SẼ KHÔNG CHỊU TRÁCH NHIỆM.</p>
-          <div id="modal-buttons">
+          <div class="modal-buttons">
               <button id="modal-confirm" class="clip-path-button">ĐỒNG Ý</button>
               <button id="modal-cancel" class="clip-path-button">KHÔNG ĐỒNG Ý</button>
           </div>
       </div>
+  </div>
+
+  <div id="vip-warning-modal" class="modal-overlay clip-path-large">
+    <div class="modal-content">
+        <h3>CẢNH BÁO CHỨC NĂNG VIP</h3>
+        <p class="blinking-warning">ĐÂY LÀ CHỨC NĂNG VIP ! NẾU BẠN CHỌN VÔ ĐÂY PHẢI ĐẢM BẢO VỐN MẠNH ĐỂ CHƠI !!<br>LIÊN HỆ TELE @LONGBAOF168 ĐỂ ĐƯỢC TRUY CẬP !!</p>
+        <div id="vip-modal-buttons" class="modal-buttons">
+            <button id="vip-confirm" class="clip-path-button">ĐỒNG Ý</button>
+            <button id="vip-cancel" class="clip-path-button">HUỶ BỎ</button>
+        </div>
+    </div>
   </div>
 
   <audio id="bg-music" loop src="background-music.mp3"></audio>
@@ -311,10 +347,10 @@
   <audio id="sfx-typing" src="sfx-typing.mp3"></audio>
   <audio id="sfx-deal" src="deal.mp3"></audio>
   <script>
-    let validCodes, tablesByLobby, historyLog, sessionStats, statsChart, dataStreamInterval, dom, matrixInterval;
+    let accounts, tablesByLobby, historyLog, sessionStats, statsChart, dataStreamInterval, dom, matrixInterval, currentUser;
 
     function playSound(soundName) {
-        if (dom && dom.settings.sfxToggle.checked) {
+        if (dom && dom.sound[soundName]) {
             const sound = dom.sound[soundName];
             if(sound) { sound.currentTime = 0; sound.play().catch(e => {}); }
         }
@@ -342,17 +378,26 @@
         if (!usernameInput.value.trim() || !codeInput.value.trim()) {
             error.textContent = "LỖI: YÊU CẦU MÃ ĐẶC VỤ & KHÓA"; return;
         }
-        if (validCodes.includes(codeInput.value.trim())) {
+
+        const enteredCode = codeInput.value.trim();
+        if (accounts[enteredCode]) {
+            currentUser = {
+                code: enteredCode,
+                coins: accounts[enteredCode].coins
+            };
+            
+            dom.coinBalance.textContent = currentUser.coins;
+            dom.coinDisplay.classList.remove('hidden');
+
             dom.loginScreen.classList.remove('visible');
             dom.loginScreen.classList.add('hidden-overlay');
             dom.appScreen.classList.remove("hidden");
-            clearInterval(matrixInterval);
+            clearInterval(matrixInterval); 
             if (dom.settings.musicToggle.checked) dom.sound.music.play().catch(e => {});
         } else {
             error.textContent = "LỖI: KHÓA MÃ HÓA KHÔNG HỢP LỆ";
         }
     }
-
     function animateText(element, final_text, isPrediction = false) {
         return new Promise(resolve => {
             const scrambleChars = 'AZXCVBNMSDFGHJKLQWERTYUIOP0123456789#?&@$*';
@@ -381,7 +426,6 @@
             animate();
         });
     }
-
     function startDataStream() {
         const streamEl = document.getElementById('ai-data-stream');
         if (!streamEl) return;
@@ -422,9 +466,9 @@
         });
         historyContainer.scrollTop = historyContainer.scrollHeight;
     }
-    
     function startMatrixRain() {
         const canvas = dom.matrixCanvas;
+        if (!canvas) return;
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -452,9 +496,9 @@
                 rainDrops[i]++;
             }
         };
+        if(matrixInterval) clearInterval(matrixInterval);
         matrixInterval = setInterval(draw, 33);
     }
-
     async function startBootSequence() {
         const logLines = Array.from(document.querySelectorAll('#boot-log p'));
         const progressBar = document.getElementById('progress-bar');
@@ -477,7 +521,7 @@
         }
         await new Promise(resolve => setTimeout(resolve, 500));
         dom.bootScreen.style.opacity = '0';
-        dom.loginScreen.classList.add('visible');
+        dom.choiceScreen.classList.remove('hidden');
         startMatrixRain();
         setTimeout(() => dom.bootScreen.classList.add('hidden'), 1000);
     }
@@ -485,6 +529,16 @@
         if (!dom.lobbySelect.value || !dom.tableSelect.value) {
             alert("LỖI HỆ THỐNG: CHƯA CHỌN LUỒNG DỮ LIỆU."); return;
         }
+
+        if (!currentUser || currentUser.coins < 5) {
+            alert("LỖI HỆ THỐNG: KHÔNG ĐỦ XU ĐỂ THỰC HIỆN PHÂN TÍCH. (YÊU CẦU: 5 XU)");
+            return;
+        }
+
+        currentUser.coins -= 5;
+        accounts[currentUser.code].coins = currentUser.coins; // Cập nhật lại kho dữ liệu
+        dom.coinBalance.textContent = currentUser.coins;
+
         dom.predictButton.disabled = true;
         dom.analysisDeck.classList.remove('visible');
         dom.ai.avatar.classList.add('analyzing');
@@ -501,7 +555,6 @@
         dom.analysisDeck.classList.add('visible');
         updateHistoryInBackground();
     }
-    
     function analyzePrimaryTrend(history) {
         const last_n = history.slice(-6).filter(r => r !== 'tie');
         if (last_n.length < 4) return { prediction: 'NHÀ CÁI', confidence: '58.2'};
@@ -521,7 +574,6 @@
         }
         return { prediction: Math.random() > 0.5 ? 'NHÀ CON' : 'NHÀ CÁI', confidence: (Math.random() * 15 + 50).toFixed(1) };
     }
-
     function analyzeSecondaryTrend() {
         const rand = Math.random() * 100;
         if (rand < 50) return 'LONG BẢO';
@@ -529,9 +581,7 @@
         if (rand < 90) return 'CÁI ĐÔI';
         return 'HOÀ';
     }
-
     function getBaccaratValue(cardValue) { if (['K', 'Q', 'J', '10'].includes(cardValue)) return 0; if (cardValue === 'A') return 1; return parseInt(cardValue); }
-
     function updateHistoryInBackground() {
         playSound('deal');
         const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
@@ -564,19 +614,16 @@
         if (playerScore > bankerScore) { winner = 'player'; } 
         else if (bankerScore > playerScore) { winner = 'banker'; } 
         else { winner = 'tie'; }
-        
         historyLog.push(winner);
         sessionStats[winner]++;
         sessionStats.total++;
         updateStatsChart();
         updateBeadRoadDisplay();
-        
         const winnerMap = { player: 'Player', banker: 'Banker', tie: 'Hòa' };
         animateText(dom.ai.logText, `KẾT QUẢ VÁN TRƯỚE: ${winnerMap[winner].toUpperCase()}. // CHẾ ĐỘ CHỜ //`);
         dom.predictButton.disabled = false;
         dom.ai.avatar.classList.remove('analyzing');
     }
-
     function populateTables() {
         const l = dom.lobbySelect.value;
         dom.tableSelect.innerHTML = '<option value="">-- CHỜ CHỌN KHU VỰC --</option>';
@@ -588,23 +635,34 @@
             dom.tableSelect.disabled = false;
         } else { dom.tableSelect.disabled = true; }
     }
-    
     document.addEventListener('DOMContentLoaded', () => {
-        validCodes = [ "167904", "582173", "907348", "213560", "638901", "475289", "801452", "026815", "749063", "350728", "112233", "445566", "778899", "001122", "654321", "987650", "246802", "135791", "505050", "864209" ];
+        accounts = {
+            "843190": { coins: 50 }, "772045": { coins: 50 }, "103854": { coins: 50 },
+            "562911": { coins: 50 }, "930258": { coins: 50 }, "417632": { coins: 50 },
+            "605894": { coins: 50 }, "281743": { coins: 50 }, "339501": { coins: 50 },
+            "745128": { coins: 50 }, "881239": { coins: 50 }, "056842": { coins: 50 },
+            "192473": { coins: 50 }, "528116": { coins: 50 }, "670395": { coins: 50 },
+            "409821": { coins: 50 }, "215688": { coins: 50 }, "994730": { coins: 50 },
+            "368057": { coins: 50 }, "710964": { coins: 50 }
+        };
         tablesByLobby = { 
             SEXY: ["C15", "C16", "C02", "C03", "C04", "BACARAT 3", "BACARAT 4", "BACARAT 5", "BACARAT 6", "BACARAT 7"], 
             DG: ["BACARAT A02", "BACARAT C02", "BACARAT D06", "BACARAT A03", "BACARAT C01", "BACARAT D05", "BACARAT C05", "BACARAT D01", "BACARAT D02"] 
         };
         historyLog = [];
         sessionStats = { player: 0, banker: 0, tie: 0, total: 0 };
-        
+        currentUser = null;
+
         dom = { sound: {}, settings: {}, ai: {}, modal: {} }; 
         dom.bootScreen = document.getElementById('boot-screen');
+        dom.choiceScreen = document.getElementById('choiceScreen');
         dom.loginScreen = document.getElementById('loginScreen');
         dom.appScreen = document.getElementById('app');
         dom.predictButton = document.getElementById('predictBtn');
         dom.lobbySelect = document.getElementById('lobby-select');
         dom.tableSelect = document.getElementById('table-select');
+        dom.coinDisplay = document.getElementById('coin-display');
+        dom.coinBalance = document.getElementById('coin-balance');
         dom.sound.music = document.getElementById('bg-music');
         dom.sound.click = document.getElementById('sfx-click');
         dom.sound.hover = document.getElementById('sfx-hover');
@@ -622,16 +680,36 @@
         dom.modal.confirmBtn = document.getElementById('modal-confirm');
         dom.modal.cancelBtn = document.getElementById('modal-cancel');
         dom.matrixCanvas = document.getElementById('matrix-canvas');
+        dom.modal.vipWarning = document.getElementById('vip-warning-modal');
+        dom.modal.vipConfirmBtn = document.getElementById('vip-confirm');
+        dom.modal.vipCancelBtn = document.getElementById('vip-cancel');
+
+        const gotoAiBtn = document.getElementById('goto-ai-tool');
+        const gotoScanBtn = document.getElementById('goto-scan-tool');
+        gotoAiBtn.addEventListener('click', () => {
+            dom.choiceScreen.classList.add('hidden');
+            dom.loginScreen.classList.add('visible');
+        });
+        gotoScanBtn.addEventListener('click', () => {
+            dom.modal.vipWarning.style.display = 'flex';
+        });
+        dom.modal.vipConfirmBtn.addEventListener('click', () => {
+            playSound('click');
+            dom.modal.vipWarning.style.display = 'none';
+            window.open('http://www.soilabai.site', '_blank');
+        });
+        dom.modal.vipCancelBtn.addEventListener('click', () => {
+            playSound('click');
+            dom.modal.vipWarning.style.display = 'none';
+        });
 
         const selectWrapper = document.querySelector('.custom-select-wrapper');
         const selectTrigger = selectWrapper.querySelector('.custom-select-trigger');
         const customOptions = selectWrapper.querySelectorAll('.custom-option');
         const realSelect = document.getElementById('mode-select');
-
         selectTrigger.addEventListener('click', () => {
             selectWrapper.classList.toggle('open');
         });
-
         customOptions.forEach(option => {
             option.addEventListener('click', () => {
                 customOptions.forEach(opt => opt.classList.remove('selected'));
@@ -639,13 +717,11 @@
                 selectTrigger.textContent = option.textContent;
                 realSelect.value = option.dataset.value;
                 selectWrapper.classList.remove('open');
-                
                 realSelect.dispatchEvent(new Event('change'));
             });
         });
-
         document.addEventListener('click', (e) => {
-            if (!selectWrapper.contains(e.target)) {
+            if (selectWrapper && !selectWrapper.contains(e.target)) {
                 selectWrapper.classList.remove('open');
             }
         });
@@ -654,7 +730,6 @@
         dom.lobbySelect.addEventListener('change', () => { playSound('click'); populateTables(); });
         dom.tableSelect.addEventListener('change', () => playSound('click'));
         populateTables();
-
         realSelect.addEventListener('change', (e) => {
             if (e.target.value === 'urgent') {
                 dom.modal.container.style.display = 'flex';
@@ -672,7 +747,6 @@
             customOptions.forEach(opt => opt.classList.remove('selected'));
             selectWrapper.querySelector('.custom-option[data-value="safe"]').classList.add('selected');
         });
-        
         startBootSequence();
     });
   </script>
