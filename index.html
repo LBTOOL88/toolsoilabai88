@@ -21,6 +21,11 @@
       --text-dark: #0a0a14;
       --border-color: rgba(0, 209, 255, 0.3);
       --warning-bg: rgba(255, 60, 60, 0.1);
+      
+      /* MÀU CHO CÁC CHẾ ĐỘ */
+      --rice-mode-color: #28a745; /* Xanh lá */
+      --urgent-mode-color: #dc3545; /* Đỏ */
+      --satellite-mode-color: #9d4edd; /* Tím */
     }
     
     html, body { 
@@ -135,6 +140,8 @@
     #loginScreen input:focus { outline: none; border-color: var(--primary-accent); box-shadow: 0 0 15px var(--primary-accent); }
     #loginScreen button { font-family: 'Rajdhani', sans-serif; font-weight: 700; padding: 16px 35px; margin-top: 20px; cursor: pointer; font-size: 1.25em; text-transform: uppercase; letter-spacing: 1px; background: var(--primary-accent); color: var(--text-dark); border: none; transition: all 0.2s ease-out; }
     #loginScreen button:hover { background: white; color: black; box-shadow: 0 0 20px white; }
+    #loginScreen button:disabled { background: #555; color: #888; cursor: not-allowed; }
+
     #error { color: var(--glitch-red); margin-top: 20px; height: 1.2em; font-weight: 500;}
     .custom-select-wrapper { position: relative; }
     .custom-select-trigger { position: relative; padding: 14px 20px; background: var(--input-bg); color: var(--text-light); font-size: 1.1em; border: 1px solid var(--border-color); cursor: pointer; transition: all 0.2s ease; clip-path: polygon(0 8px, 8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%); }
@@ -146,6 +153,28 @@
     .custom-option { padding: 14px 20px; cursor: pointer; transition: background 0.2s, color 0.2s; }
     .custom-option:hover { background: var(--primary-accent); color: var(--text-dark); }
     .custom-option.selected { background: var(--primary-accent); color: var(--text-dark); font-weight: 700;}
+
+    #mode-loading-container {
+        width: 90%;
+        max-width: 380px;
+        height: 8px;
+        border: 1px solid var(--border-color);
+        margin-top: 15px;
+        padding: 2px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        box-sizing: border-box;
+    }
+    #mode-loading-container.visible {
+        opacity: 1;
+    }
+    #mode-loading-bar {
+        width: 0%;
+        height: 100%;
+        background-color: var(--primary-accent);
+        box-shadow: 0 0 10px var(--primary-accent);
+        transition: width 1.5s ease-out, background-color 0.5s, box-shadow 0.5s;
+    }
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 10, 23, 0.8); backdrop-filter: blur(8px); z-index: 20000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
     .modal-overlay.visible { opacity: 1; visibility: visible; }
@@ -414,19 +443,22 @@
         <input type="text" id="username" class="clip-path-angular assemble-child" style="animation-delay: 0.5s;" placeholder="MÃ ĐẶC VỤ (Tên tài khoản)" />
         <input type="text" id="code" class="clip-path-angular assemble-child" style="animation-delay: 0.6s;" placeholder="KHÓA MÃ HÓA (Mã truy cập)" />
         <div class="custom-select-wrapper assemble-child" style="animation-delay: 0.7s;">
-            <div class="custom-select-trigger">CÂN BẰNG (Balanced)</div>
+            <div class="custom-select-trigger">CHẾ ĐỘ CƠM GẠO</div>
             <ul class="custom-options">
-                <li class="custom-option selected" data-value="balanced">CÂN BẰNG (Balanced)</li>
-                <li class="custom-option" data-value="cautious">THẬN TRỌNG (Cautious)</li>
-                <li class="custom-option" data-value="aggressive">LIỀU LĨNH (Aggressive)</li>
+                <li class="custom-option selected" data-value="rice">CHẾ ĐỘ CƠM GẠO</li>
+                <li class="custom-option" data-value="urgent">CHẾ ĐỘ GỠ NỢ KHẨN CẤP</li>
+                <li class="custom-option" data-value="satellite">CHẾ ĐỘ VỆ TINH</li>
             </ul>
         </div>
-        <select id="personality-select" class="hidden">
-          <option value="balanced" selected>CÂN BẰNG (Balanced)</option>
-          <option value="cautious">THẬN TRỌNG (Cautious)</option>
-          <option value="aggressive">LIỀU LĨNH (Aggressive)</option>
+        <select id="mode-select" class="hidden">
+          <option value="rice" selected>CHẾ ĐỘ CƠM GẠO</option>
+          <option value="urgent">CHẾ ĐỘ GỠ NỢ KHẨN CẤP</option>
+          <option value="satellite">CHẾ ĐỘ VỆ TINH</option>
         </select>
-        <button onclick="checkCode()" class="clip-path-button assemble-child" style="animation-delay: 0.8s;" onmouseover="playSound('hover')" onmousedown="playSound('click')">[ Thiết lập Kết nối ]</button>
+        <div id="mode-loading-container" class="hidden clip-path-button">
+            <div id="mode-loading-bar"></div>
+        </div>
+        <button id="loginBtn" onclick="checkCode()" class="clip-path-button assemble-child" style="animation-delay: 0.8s;" onmouseover="playSound('hover')" onmousedown="playSound('click')">[ Thiết lập Kết nối ]</button>
         <p id="error"></p>
     </div>
     <footer id="login-footer">
@@ -674,7 +706,7 @@
             currentUser = {
                 code: enteredCode,
                 energy: accounts[enteredCode].energy,
-                personality: dom.personalitySelect.value
+                mode: dom.modeSelect.value
             };
             
             updateEnergyBar(currentUser.energy);
@@ -849,10 +881,12 @@
         dom.analysisDeck.classList.remove('visible');
         dom.ai.avatar.classList.add('analyzing');
         startDataStream();
-        await animateText(dom.ai.logText, `KÍCH HOẠT A.I. ${currentUser.personality.toUpperCase()}...`);
+        await animateText(dom.ai.logText, `KÍCH HOẠT A.I. CHẾ ĐỘ ${currentUser.mode.toUpperCase()}...`);
         await animateText(dom.ai.logText, 'PHÂN TÍCH LUỒNG DỮ LIỆU LỊCH SỬ...');
         
-        const primary = analyzePrimaryTrend(historyLog, currentUser.personality);
+        // This is where you would have different logic for 'rice', 'urgent', 'satellite'
+        // For now, we use a generic prediction logic
+        const primary = analyzePrimaryTrend(historyLog); 
         
         if (primary.prediction === 'BỎ QUA') {
             await animateText(dom.ai.predictionText, 'BỎ QUA VÁN NÀY', true);
@@ -878,44 +912,11 @@
         }
     }
 
-    function analyzePrimaryTrend(history, personality) {
+    function analyzePrimaryTrend(history) {
+        // Generic analysis, you can customize this based on currentUser.mode if you want
         const last_n = history.slice(-10).filter(r => r !== 'tie');
         if (last_n.length < 3) return { prediction: 'NHÀ CÁI', confidence: '65.2' };
-
-        const lastResult = last_n[last_n.length - 1];
-        const secondLastResult = last_n[last_n.length - 2];
-
-        if (personality === 'aggressive') {
-            if (lastResult === secondLastResult) {
-                return { 
-                    prediction: lastResult === 'player' ? 'NHÀ CON' : 'NHÀ CÁI', 
-                    confidence: (Math.random() * 15 + 80).toFixed(1)
-                };
-            }
-        }
         
-        if (personality === 'cautious') {
-            const streakCount = (arr, val) => {
-                let count = 0;
-                for(let i = arr.length - 1; i >= 0; i--) {
-                    if(arr[i] === val) count++; else break;
-                }
-                return count;
-            };
-
-            const playerStreak = streakCount(last_n, 'player');
-            const bankerStreak = streakCount(last_n, 'banker');
-
-            if (playerStreak >= 3) {
-                 return { prediction: 'NHÀ CON', confidence: (Math.random() * 10 + 88).toFixed(1) };
-            }
-            if (bankerStreak >= 3) {
-                 return { prediction: 'NHÀ CÁI', confidence: (Math.random() * 10 + 88).toFixed(1) };
-            }
-            
-            return { prediction: 'BỎ QUA', confidence: 0 };
-        }
-
         const last4 = last_n.slice(-4);
         if (last4.length === 4 && last4.every(v => v === last4[0])) { 
             const pred = last4[0] === 'player' ? 'NHÀ CON' : 'NHÀ CÁI';
@@ -925,12 +926,6 @@
             const pred = last4[3] === 'player' ? 'NHÀ CÁI' : 'NHÀ CON';
             return { prediction: pred, confidence: (Math.random() * 10 + 75).toFixed(1) };
         }
-        const last3 = last_n.slice(-3);
-        if(last3.length === 3 && last3[0] === last3[1] && last3[1] !== last3[2]) {
-             const pred = last3[2] === 'player' ? 'NHÀ CON' : 'NHÀ CÁI';
-            return { prediction: pred, confidence: (Math.random() * 15 + 70).toFixed(1) };
-        }
-        
         return { prediction: Math.random() > 0.5 ? 'NHÀ CON' : 'NHÀ CÁI', confidence: (Math.random() * 15 + 55).toFixed(1) };
     }
 
@@ -951,7 +946,6 @@
         }
 
         let bestPattern = { name: "ĐANG PHÂN TÍCH", probability: 0 };
-
         const lastResult = history[history.length - 1];
         let streak = 0;
         for (let i = history.length - 1; i >= 0; i--) {
@@ -996,7 +990,6 @@
         
         if (bestPattern.probability >= 95) {
             bestPattern.name = "CẦU TẤT TAY 🔥";
-            // TRIGGER ALERT
             if (isLiveModeActive && !dom.ai.avatar.classList.contains('alert-mode')) {
                 playSound('alert');
                 dom.ai.avatar.classList.add('alert-mode');
@@ -1004,7 +997,6 @@
                 dom.ai.logText.classList.add('alert-text');
             }
         } else {
-            // REMOVE ALERT
             if (dom.ai.avatar.classList.contains('alert-mode')) {
                 dom.ai.avatar.classList.remove('alert-mode');
                 dom.ai.logText.classList.remove('alert-text');
@@ -1117,6 +1109,32 @@
         }
     }
 
+    function switchMode(modeValue, color) {
+        dom.loginButton.disabled = true;
+        const loadingContainer = dom.modeLoadingContainer;
+        const loadingBar = dom.modeLoadingBar;
+        
+        loadingBar.style.width = '0%';
+        loadingContainer.classList.add('visible');
+
+        // Delay to allow the container to become visible before transitioning
+        setTimeout(() => {
+            loadingBar.style.backgroundColor = color;
+            loadingBar.style.boxShadow = `0 0 10px ${color}`;
+            loadingBar.style.width = '100%';
+        }, 100);
+
+        setTimeout(() => {
+            loadingContainer.classList.remove('visible');
+            dom.loginButton.disabled = false;
+            // Reset bar after transition is done
+            setTimeout(() => {
+                 loadingBar.style.width = '0%';
+            }, 500)
+        }, 1600); // 100ms delay + 1500ms transition
+    }
+
+
     document.addEventListener('DOMContentLoaded', () => {
         accounts = {
             "843191": { energy: 100 }, "772041": { energy: 100 }, "10385": { energy: 100 },
@@ -1174,7 +1192,11 @@
         dom.modal.aquariusWarning = document.getElementById('aquarius-warning-modal');
         dom.modal.aquariusConfirmBtn = document.getElementById('aquarius-confirm');
         dom.modal.aquariusCancelBtn = document.getElementById('aquarius-cancel');
-        dom.personalitySelect = document.getElementById('personality-select');
+        dom.modeSelect = document.getElementById('mode-select');
+        dom.loginButton = document.getElementById('loginBtn');
+        dom.modeLoadingContainer = document.getElementById('mode-loading-container');
+        dom.modeLoadingBar = document.getElementById('mode-loading-bar');
+
 
         dom.lowEnergyConfirmBtn.addEventListener('click', () => {
             dom.lowEnergyModal.classList.remove('visible');
@@ -1224,20 +1246,50 @@
         selectTrigger.addEventListener('click', () => {
             selectWrapper.classList.toggle('open');
         });
+
         customOptions.forEach(option => {
             option.addEventListener('click', () => {
+                // Visual update
                 customOptions.forEach(opt => opt.classList.remove('selected'));
                 option.classList.add('selected');
                 selectTrigger.textContent = option.textContent;
-                dom.personalitySelect.value = option.dataset.value;
+                dom.modeSelect.value = option.dataset.value;
                 selectWrapper.classList.remove('open');
-                dom.personalitySelect.dispatchEvent(new Event('change'));
+                dom.modeSelect.dispatchEvent(new Event('change'));
+                
+                // Get mode and color
+                const mode = option.dataset.value;
+                let modeColor = 'var(--primary-accent)';
+                if (mode === 'rice') modeColor = 'var(--rice-mode-color)';
+                if (mode === 'urgent') modeColor = 'var(--urgent-mode-color)';
+                if (mode === 'satellite') modeColor = 'var(--satellite-mode-color)';
+                
+                // Trigger loading bar animation
+                switchMode(mode, modeColor);
+                
+                 if (mode === 'urgent') {
+                    dom.modal.container.classList.add('visible');
+                }
             });
         });
+
         document.addEventListener('click', (e) => {
             if (selectWrapper && !selectWrapper.contains(e.target)) {
                 selectWrapper.classList.remove('open');
             }
+        });
+        
+        dom.modal.confirmBtn.addEventListener('click', () => {
+            playSound('click');
+            dom.modal.container.classList.remove('visible');
+        });
+        dom.modal.cancelBtn.addEventListener('click', () => {
+            playSound('click');
+            dom.modal.container.classList.remove('visible');
+            dom.modeSelect.value = 'rice'; 
+            selectTrigger.textContent = 'CHẾ ĐỘ CƠM GẠO';
+            customOptions.forEach(opt => opt.classList.remove('selected'));
+            selectWrapper.querySelector('.custom-option[data-value="rice"]').classList.add('selected');
         });
 
         initializeChart();
