@@ -8,18 +8,18 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --primary-accent: #fcee0a;
+      --primary-accent: #00d1ff; /* MÀU XANH CÔNG NGHỆ MỚI */
       --primary-yellow: #fcee0a;
-      --cyber-cyan: #0abdc6;
+      --cyber-cyan: #00d1ff; /* Đồng bộ màu cyan */
       --cyber-magenta: #ff00ff;
       --glitch-red: #ff3c3c;
-      --bg-dark: #0a0a14;
-      --container-bg: rgba(10, 20, 30, 0.85);
-      --input-bg: rgba(10, 10, 20, 0.9);
+      --bg-dark: #020a17; /* Nền tối hơn, sâu hơn */
+      --container-bg: rgba(5, 20, 40, 0.85); /* Nền container xanh đậm */
+      --input-bg: rgba(2, 10, 23, 0.9);
       --text-light: #e0e0e0;
       --text-dark: #0a0a14;
-      --border-color: rgba(10, 189, 198, 0.3);
-      --warning-bg: rgba(252, 238, 10, 0.1);
+      --border-color: rgba(0, 209, 255, 0.3); /* Viền màu xanh mới */
+      --warning-bg: rgba(255, 60, 60, 0.1);
     }
     
     html, body { 
@@ -28,7 +28,9 @@
         background-color: var(--bg-dark);
     }
 
-    #scanlines-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%); background-size: 100% 4px; z-index: 3; pointer-events: none; }
+    #scanlines-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%); background-size: 100% 4px; z-index: 3; pointer-events: none; animation: scanline-move 10s linear infinite; }
+    @keyframes scanline-move { from { background-position: 0 0; } to { background-position: 0 -40px; } }
+    
     .hidden { display: none !important; }
     .clip-path-angular { clip-path: polygon(0 8px, 8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%); }
     .clip-path-large { clip-path: polygon(0 15px, 15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%); }
@@ -42,41 +44,26 @@
     #progress-bar { width: 0%; height: 100%; background-color: var(--primary-accent); box-shadow: 0 0 15px var(--primary-accent); transition: width 0.2s linear; }
     #progress-text { color: var(--text-light); margin-top: 10px; font-size: 1.2em; font-weight: 700; }
 
-    /* === CSS CHO MÀN HÌNH CHỌN LỰA === */
     #choiceScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10001; text-align: center; padding: 20px; box-sizing: border-box; }
-    #choice-content { z-index: 1; background: rgba(10,10,20,0.8); backdrop-filter: blur(5px); padding: 40px 30px; border: 1px solid var(--border-color); width: 100%; max-width: 500px; display: flex; flex-direction: column; align-items: center;}
+    #choice-content { z-index: 1; background: var(--container-bg); backdrop-filter: blur(5px); padding: 40px 30px; border: 1px solid var(--border-color); width: 100%; max-width: 500px; display: flex; flex-direction: column; align-items: center;}
     #choice-content h2 { font-size: 2.2em; font-weight: 700; color: var(--primary-accent); text-shadow: 0 0 5px var(--primary-accent), 0 0 10px var(--primary-accent); margin-top: 0; margin-bottom: 30px; letter-spacing: 2px; }
     #choice-buttons { display: flex; flex-direction: column; gap: 20px; width: 100%; }
     .choice-btn { font-family: 'Rajdhani', sans-serif; font-weight: 700; padding: 20px 35px; cursor: pointer; font-size: 1.3em; text-transform: uppercase; letter-spacing: 1px; background: var(--primary-accent); color: var(--text-dark); border: none; transition: all 0.2s ease-out; }
     .choice-btn:hover { background: white; color: black; box-shadow: 0 0 20px white; }
 
-    /* === CSS CHO NÚT VIP === */
-    .choice-btn-vip {
-        background: linear-gradient(45deg, var(--glitch-red), var(--cyber-magenta));
-        color: white;
-        border: 2px solid var(--cyber-magenta);
-        animation: pulse-vip 2s infinite;
-    }
-    .choice-btn-vip:hover {
-        animation-play-state: paused;
-        box-shadow: 0 0 25px var(--cyber-magenta);
-    }
-    @keyframes pulse-vip {
-        0% { box-shadow: 0 0 5px var(--cyber-magenta); }
-        50% { box-shadow: 0 0 20px var(--glitch-red); }
-        100% { box-shadow: 0 0 5px var(--cyber-magenta); }
-    }
+    .choice-btn-vip { background: linear-gradient(45deg, var(--glitch-red), var(--cyber-magenta)); color: white; border: 2px solid var(--cyber-magenta); animation: pulse-vip 2s infinite; }
+    .choice-btn-vip:hover { animation-play-state: paused; box-shadow: 0 0 25px var(--cyber-magenta); }
+    @keyframes pulse-vip { 0% { box-shadow: 0 0 5px var(--cyber-magenta); } 50% { box-shadow: 0 0 20px var(--glitch-red); } 100% { box-shadow: 0 0 5px var(--cyber-magenta); } }
     
-    /* === CSS CHO MÀN HÌNH ĐĂNG NHẬP === */
     #loginScreen { opacity: 0; visibility: hidden; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10001; text-align: center; padding: 20px; box-sizing: border-box; transition: opacity 1s ease-in-out, visibility 1s ease-in-out; }
     #loginScreen.visible { opacity: 1; visibility: visible; }
     #loginScreen.hidden-overlay { opacity: 0; visibility: hidden; pointer-events: none; }
     #matrix-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
-    #login-content { z-index: 1; background: rgba(10,10,20,0.8); backdrop-filter: blur(5px); padding: 30px; border: 1px solid var(--border-color); width: 100%; max-width: 420px; display: flex; flex-direction: column; align-items: center;}
+    #login-content { z-index: 1; background: var(--container-bg); backdrop-filter: blur(5px); padding: 30px; border: 1px solid var(--border-color); width: 100%; max-width: 420px; display: flex; flex-direction: column; align-items: center;}
     #login-logo { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; margin-bottom: 20px; border: 3px solid var(--primary-accent); box-shadow: 0 0 20px var(--primary-accent); }
     #loginScreen h2 { font-size: 2.2em; font-weight: 700; color: var(--primary-accent); text-shadow: 0 0 5px var(--primary-accent), 0 0 10px var(--primary-accent); margin-top: 0; margin-bottom: 15px; letter-spacing: 2px; }
-    #login-warning { background: var(--warning-bg); border: 1px solid var(--primary-accent); padding: 15px; margin-bottom: 20px; width: 90%; max-width: 380px; }
-    #login-warning p { margin: 0 0 15px 0; font-weight: 500; line-height: 1.5; color: var(--primary-yellow); }
+    #login-warning { background: var(--warning-bg); border: 1px solid var(--glitch-red); padding: 15px; margin-bottom: 20px; width: 90%; max-width: 380px; }
+    #login-warning p { margin: 0 0 15px 0; font-weight: 500; line-height: 1.5; color: #ff8a8a; }
     .register-btn { background: var(--primary-accent); color: var(--text-dark); padding: 8px 20px; text-decoration: none; font-weight: 700; text-transform: uppercase; transition: all 0.3s ease; }
     .register-btn:hover { background: white; box-shadow: 0 0 15px white; }
     #loginScreen input, .custom-select-wrapper { font-family: 'Rajdhani', sans-serif; margin: 8px 0; width: 90%; max-width: 380px; }
@@ -96,42 +83,35 @@
     .custom-option:hover { background: var(--primary-accent); color: var(--text-dark); }
     .custom-option.selected { background: var(--primary-accent); color: var(--text-dark); font-weight: 700;}
 
-    /* === CSS CHO CÁC MODAL === */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 20000; display: none; justify-content: center; align-items: center; }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 10, 23, 0.8); backdrop-filter: blur(8px); z-index: 20000; display: flex; justify-content: center; align-items: center; }
     .modal-content { background: var(--container-bg); border: 2px solid var(--primary-accent); padding: 30px; width: 90%; max-width: 500px; text-align: center; color: var(--text-light); box-shadow: 0 0 25px var(--primary-accent); }
     .modal-content p { font-size: 1.2em; line-height: 1.6; margin-bottom: 30px;}
     .modal-buttons button { padding: 12px 25px; margin: 0 10px; font-size: 1em; font-weight: 700; cursor: pointer; border: 1px solid var(--primary-accent); }
     #modal-confirm, #vip-confirm { background: var(--primary-accent); color: var(--text-dark); }
     #modal-cancel, #vip-cancel { background: transparent; color: var(--primary-accent); }
     
-    /* === CSS CẢNH BÁO VIP === */
     #vip-warning-modal .modal-content { border-color: var(--glitch-red); box-shadow: 0 0 25px var(--glitch-red); }
     #vip-warning-modal h3 { color: var(--glitch-red); text-shadow: 0 0 10px var(--glitch-red); margin: 0 0 20px 0; font-size: 1.5em; text-transform: uppercase; }
-    .blinking-warning {
-        font-weight: 700;
-        color: var(--primary-yellow);
-        animation: blink-warning 1.5s infinite;
-    }
-    @keyframes blink-warning {
-        0%, 100% { color: var(--primary-yellow); text-shadow: 0 0 5px var(--primary-yellow); }
-        50% { color: var(--text-light); text-shadow: none; }
-    }
+    .blinking-warning { font-weight: 700; color: var(--primary-yellow); animation: blink-warning 1.5s infinite; }
+    @keyframes blink-warning { 0%, 100% { color: var(--primary-yellow); text-shadow: 0 0 5px var(--primary-yellow); } 50% { color: var(--text-light); text-shadow: none; } }
     #vip-warning-modal #vip-confirm { background: var(--glitch-red); color: white; border-color: var(--glitch-red); }
     #vip-warning-modal #vip-cancel { background: transparent; color: var(--glitch-red); border-color: var(--glitch-red); }
 
-    /* === CSS BANNER === */
     #login-footer { position: absolute; bottom: 10px; left: 0; width: 100%; text-align: center; font-size: 1em; z-index: 2; color: rgba(255,255,255,0.7); }
     #login-footer a { color: var(--cyber-cyan); text-decoration: none; font-weight: 700; }
     #login-footer p { margin: 5px 0; }
     
-    #app { z-index: 5; width: 100%; box-sizing: border-box; position: relative; height: 100%; overflow-y: auto; overflow-x: hidden; 
+    #app { 
+        z-index: 5; width: 100%; box-sizing: border-box; position: relative; height: 100%; overflow-y: auto; overflow-x: hidden; 
         background-color: var(--bg-dark);
-        background-image: 
-            radial-gradient(ellipse at 50% 0%, rgba(10, 189, 198, 0.25) 0%, transparent 50%),
-            radial-gradient(ellipse at 50% 100%, rgba(252, 238, 10, 0.15) 0%, transparent 50%);
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80"><path fill="%23051428" fill-opacity="0.4" d="M0 0h80v80H0z"/><path fill-opacity="0.3" stroke="%2300d1ff" stroke-width="0.5" d="M0 39.5h80M39.5 0v80M28 20l-12-8v16l12 8 12-8v-16l-12-8z m24 0l12 8v16l-12 8-12-8v-16l12-8z m-12 24l-12-8v16l12 8 12-8v-16l-12-8z m24 0l12 8v16l-12 8-12-8v-16l12-8zM28 60l-12-8v16l12 8 12-8v-16l-12-8z m24 0l12 8v16l-12 8-12-8v-16l12-8z m-12 24l-12-8v16l12 8 12-8v-16l-12-8z m24 0l12 8v16l-12 8-12-8v-16l12-8z"/></svg>');
+        animation: background-pan 30s linear infinite;
     }
-    header { position:relative; z-index: 10; display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; text-align: center; border-bottom: 2px solid var(--border-color); background: rgba(10, 10, 20, 0.5); }
-    header h1 { color: var(--primary-accent); text-shadow: 0 0 8px var(--primary-accent); margin: 0; font-size: 2.2em; text-transform: uppercase; flex-grow: 1; text-align: center;}
+    @keyframes background-pan { 0% { background-position: 0% 0%; } 100% { background-position: 160px 160px; } }
+
+    header { position:relative; z-index: 10; display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; text-align: center; border-bottom: 2px solid var(--border-color); background: rgba(5, 20, 40, 0.5); }
+    header h1 { color: var(--primary-accent); text-shadow: 0 0 8px var(--primary-accent); margin: 0; font-size: 2.2em; text-transform: uppercase; flex-grow: 1; text-align: center; transition: text-shadow 0.3s ease; }
+    header h1:hover { text-shadow: 0 0 15px var(--primary-accent); }
     #settings-button { font-size: 2em; cursor: pointer; color: var(--text-light); transition: transform 0.3s, color 0.3s; margin-left: 20px; }
     #settings-button:hover { transform: rotate(90deg); color: var(--primary-accent); }
     #settings-panel { display: none; position: fixed; top: 80px; right: 20px; background: var(--container-bg); border: 1px solid var(--border-color); padding: 20px; z-index: 10000; }
@@ -142,67 +122,85 @@
     #swatch-yellow { background: var(--primary-yellow); } #swatch-cyan { background: var(--cyber-cyan); } #swatch-magenta { background: var(--cyber-magenta); }
     .sound-toggle { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     
-    /* === CSS HIỂN THỊ XU === */
-    #coin-display {
-        background: rgba(0,0,0,0.5);
-        border: 1px solid var(--border-color);
-        padding: 8px 15px;
-        font-size: 1.2em;
-        font-weight: 700;
-        color: var(--primary-accent);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    #coin-balance {
-        color: white;
-        min-width: 30px;
-        text-align: right;
-    }
+    #energy-display { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.5); border: 1px solid var(--border-color); padding: 8px 15px; font-weight: 700; }
+    .energy-label { font-size: 1em; color: var(--primary-accent); text-transform: uppercase; }
+    .energy-bar-container { width: 150px; height: 15px; background: rgba(0, 0, 0, 0.5); border: 1px solid var(--border-color); padding: 2px; }
+    #energy-bar-fill { width: 100%; height: 100%; background: linear-gradient(90deg, var(--primary-accent), var(--cyber-cyan)); box-shadow: 0 0 10px var(--primary-accent); transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1), background 0.5s ease, box-shadow 0.5s ease; }
+    #energy-percentage { color: white; font-size: 1.2em; min-width: 45px; text-align: right; }
 
     .ai-container { position:relative; z-index: 5; text-align: center; padding: 25px 10px 0 10px; }
     .ai-avatar-wrapper { width: 100%; max-width: 250px; margin: 0 auto; border: 1px solid var(--border-color); background: black; transition: box-shadow 0.3s; }
-    .ai-avatar-wrapper.analyzing { box-shadow: 0 0 25px var(--primary-accent), inset 0 0 25px var(--primary-accent); animation: intense-glitch 1.5s infinite; }
-    @keyframes intense-glitch { 0%,100% { transform: skew(0deg); } 5% { transform: skew(3deg); } 10% { transform: skew(-3deg); } 15% { transform: skew(0deg) scale(1.01); } 20% { transform: skew(0deg) scale(1); } }
-    .ai-avatar-wrapper img { width: 100%; display: block; filter: brightness(0.9); }
-    #ai-status-panel { position:relative; z-index: 5; max-width: 900px; margin: 25px auto; padding: 15px 20px; background: rgba(0,0,0,0.5); border: 1px solid var(--border-color); font-size: 1.1em; }
-    #ai-status-panel .label { color: var(--primary-accent); font-weight: 700; margin-right: 10px; }
+    
+    #ai-core-svg { width: 100%; height: auto; }
+    #core-rings { transform-origin: center; animation: rotate-rings 20s linear infinite; }
+    .core-ring:nth-child(2) { animation-direction: reverse; animation-duration: 15s; }
+    #inner-core { animation: pulse-core 3s ease-in-out infinite; }
+    @keyframes rotate-rings { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes pulse-core { 0%, 100% { transform: scale(1) translateZ(0); filter: drop-shadow(0 0 5px var(--primary-accent)); } 50% { transform: scale(1.2) translateZ(0); filter: drop-shadow(0 0 15px var(--primary-accent)); } }
+    .ai-avatar-wrapper.analyzing #core-rings { animation-duration: 2s; }
+    .ai-avatar-wrapper.analyzing #inner-core { animation-duration: 0.5s; }
+    .ai-avatar-wrapper.analyzing .core-ring { stroke-dasharray: 10 5; animation: dash-flow 1s linear infinite; }
+    @keyframes dash-flow { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 15; } }
+    
+    #ai-status-panel { position:relative; z-index: 5; max-width: 900px; margin: 25px auto; padding: 15px 20px; font-size: 1.1em; }
     #ai-log-text { color: var(--cyber-cyan); font-weight: 500; }
     #ai-log-text .highlight { color: var(--primary-yellow); font-weight: 700; }
-    .main { position:relative; z-index: 5; padding: 25px; max-width: 900px; margin: 0 auto 25px auto; background: var(--container-bg); backdrop-filter: blur(5px); border: 1px solid var(--border-color); box-shadow: 0 0 25px rgba(10, 189, 198, 0.1); }
-    .selection-area { display: flex; flex-wrap: wrap; justify-content: space-between; margin-bottom: 15px; padding: 15px; border: 1px solid var(--border-color); }
+    
+    .main, .data-block, #ai-status-panel { background: rgba(15, 35, 60, 0.5); backdrop-filter: blur(10px) saturate(120%); border: 1px solid rgba(0, 209, 255, 0.5); box-shadow: inset 0 0 20px rgba(0, 209, 255, 0.2), 0 0 30px rgba(0, 209, 255, 0.3); transition: all 0.4s ease; }
+    .main:hover, .data-block:hover, #ai-status-panel:hover { border-color: rgba(0, 209, 255, 1); transform: translateY(-5px) scale(1.02); box-shadow: inset 0 0 25px rgba(0, 209, 255, 0.4), 0 0 40px rgba(0, 209, 255, 0.5); }
+    .main { position:relative; z-index: 5; padding: 25px; max-width: 900px; margin: 0 auto 25px auto; }
+
+    .selection-area { padding: 15px; }
     .selection-area .form-group { display: flex; flex-direction: column; flex-basis: calc(50% - 15px); }
     .selection-area label { margin-bottom: 10px; color: var(--primary-accent); font-weight: 500; }
     .selection-area select { font-family: 'Rajdhani', sans-serif; background: var(--input-bg); color: var(--text-light); border: 1px solid var(--border-color); padding: 14px 18px; width: 100%; cursor: pointer; }
-    #prediction-lock { padding: 20px; margin-top: 20px; margin-bottom: 20px; border: 2px solid var(--primary-accent); background: radial-gradient(ellipse at center, rgba(10, 20, 30, 0.95) 0%, #0a0a14 100%); box-shadow: 0 0 15px var(--primary-accent); min-height: 120px; display: flex; flex-direction: column; justify-content: center; }
-    #prediction-lock h3 { margin: 0 0 10px 0; color: var(--primary-accent); font-size: 1.2em; text-transform: uppercase; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; text-align: center;}
-    #prediction-lock span { display: block; text-align: center; }
+    
+    #prediction-lock { position: relative; overflow: hidden; border-width: 1px; min-height: 120px; display: flex; flex-direction: column; justify-content: center; }
+    #prediction-lock::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0, 209, 255, 0.2), transparent 50%); animation: scan-light 4s linear infinite; pointer-events: none; }
+    @keyframes scan-light { from { transform: translateY(100%); } to { transform: translateY(-100%); } }
+    #prediction-lock .corner { position: absolute; width: 20px; height: 20px; border-style: solid; border-color: var(--primary-accent); transition: all 0.3s ease; }
+    #prediction-lock:hover .corner { width: 25px; height: 25px; border-color: white; }
+    .corner.top-left { top: -2px; left: -2px; border-width: 2px 0 0 2px; }
+    .corner.top-right { top: -2px; right: -2px; border-width: 2px 2px 0 0; }
+    .corner.bottom-left { bottom: -2px; left: -2px; border-width: 0 0 2px 2px; }
+    .corner.bottom-right { bottom: -2px; right: -2px; border-width: 0 2px 2px 0; }
+
+    #prediction-lock h3 { z-index: 1; position: relative; margin: 0 0 10px 0; color: var(--primary-accent); font-size: 1.2em; text-transform: uppercase; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; text-align: center; transition: text-shadow 0.3s ease; }
+    #prediction-lock h3:hover { text-shadow: 0 0 15px var(--primary-accent); }
+    #prediction-lock span { z-index: 1; position: relative; display: block; text-align: center; }
     #ai-prediction-text { font-size: 1.8em; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
     #ai-confidence-value { font-size: 1.1em; color: var(--cyber-cyan); margin-top: 5px;}
-    .predict-btn { width: 100%; padding: 20px; font-size: 1.45em; background: var(--primary-accent); color: var(--text-dark); border: none; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 15px; transition: all 0.2s ease; }
+    
+    .predict-btn { width: 100%; padding: 20px; font-size: 1.45em; background: var(--primary-accent); color: var(--text-dark); border: none; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 15px; position: relative; overflow: hidden; transition: all 0.3s ease; }
     .predict-btn:hover:not(:disabled) { background: white; box-shadow: 0 0 20px white; }
     .predict-btn:disabled { background: #555; color: #888; cursor: not-allowed; }
+    .predict-btn:not(:disabled)::before { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; background: rgba(255, 255, 255, 0.3); border-radius: 50%; transform: translate(-50%, -50%); transition: width 0.5s, height 0.5s; }
+    .predict-btn:not(:disabled):hover::before { width: 200%; height: 200%; }
+    .predict-btn:not(:disabled) { animation: pulse-button 2s infinite; }
+    @keyframes pulse-button { 0% { box-shadow: 0 0 5px var(--primary-accent); } 70% { box-shadow: 0 0 25px var(--primary-accent); } 100% { box-shadow: 0 0 5px var(--primary-accent); } }
+
     #analysis-deck { display: none; padding-top: 20px; }
     #analysis-deck.visible { display: block; }
-    #data-panel { display: flex; flex-direction: column; gap: 15px; padding: 20px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.4); }
-    .data-block { padding: 10px; border: 1px solid var(--border-color); }
+    #data-panel { display: flex; flex-direction: column; gap: 15px; padding: 20px; }
+    .data-block { padding: 10px; }
     .data-block h3 { margin: 0 0 10px 0; color: var(--primary-accent); font-size: 1.2em; text-transform: uppercase; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
     #stats-chart-container { position: relative; height: 120px; }
-    .road-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(20px, 1fr)); gap: 4px; }
+    .road-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(20px, 1fr)); gap: 4px; perspective: 300px; }
     .road-bead { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9em; color: var(--text-dark); }
     .player-win-bead { background: var(--cyber-cyan); } .banker-win-bead { background: var(--glitch-red); } .tie-win-bead { background: var(--primary-accent); }
     #ai-data-stream { height: 100px; overflow: hidden; font-family: monospace; font-size: 0.8em; color: var(--cyber-cyan); opacity: 0.6;}
     #ai-data-stream div { white-space: pre; }
     
     @media (max-width: 768px) {
+        .energy-bar-container { width: 100px; }
         header { flex-direction: column; gap: 10px; padding-bottom: 10px; }
-        header h1 { font-size: 1.6em; order: 1; }
-        #coin-display { order: 2; }
+        #energy-display { order: 2; }
         #settings-button { position: absolute; top: 15px; right: 15px; order: 3; }
         #login-content, #choice-content { width: 95%; padding: 20px;}
         #login-logo { width: 120px; height: 120px; }
         #loginScreen h2, #choice-content h2 { font-size: 1.8em; margin-bottom: 15px; }
-        .main { padding: 15px; margin-bottom: 15px; }
+        .main, .data-block, #ai-status-panel { padding: 15px; margin-bottom: 15px; transform: none !important; }
+        .main:hover, .data-block:hover, #ai-status-panel:hover { transform: none !important; }
         .ai-container { padding: 15px 10px 0 10px; }
         #ai-status-panel { font-size: 1em; padding: 12px 15px; }
         #ai-log-text { display: block; margin-top: 5px; }
@@ -215,8 +213,25 @@
         .predict-btn { padding: 18px; font-size: 1.3em; }
         #analysis-deck { gap: 15px; }
         #data-panel { padding: 15px; }
-        .data-block { padding: 10px; }
+        #data-block { padding: 10px; }
     }
+
+    @keyframes assemble-in { from { opacity: 0; transform: translateY(30px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .assemble { animation: assemble-in 0.6s cubic-bezier(0.165, 0.84, 0.44, 1) both; }
+    .assemble-child { animation: assemble-in 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) both; }
+    
+    @keyframes slide-in-bottom { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+    .anim-slide-in { animation: slide-in-bottom 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+
+    .interactive-border { position: relative; }
+    .interactive-border::before, .interactive-border::after { content: ''; position: absolute; width: 0; height: 2px; background: var(--primary-accent); transition: width 0.3s ease-out; box-shadow: 0 0 10px var(--primary-accent); }
+    .interactive-border::before { top: 0; left: 0; }
+    .interactive-border::after { bottom: 0; right: 0; }
+    .interactive-border:hover::before, .interactive-border:hover::after { width: 100%; }
+
+    @keyframes new-bead-anim { from { transform: scale(0.5) rotateY(90deg); opacity: 0; } to { transform: scale(1) rotateY(0deg); opacity: 1; } }
+    .road-bead.newest { animation: new-bead-anim 0.5s ease-out; }
+
   </style>
 </head>
 <body>
@@ -233,9 +248,9 @@
   <canvas id="matrix-canvas"></canvas>
 
   <div id="choiceScreen" class="hidden">
-    <div id="choice-content" class="clip-path-large">
-        <h2>CHỌN GIAO THỨC</h2>
-        <div id="choice-buttons">
+    <div id="choice-content" class="clip-path-large assemble">
+        <h2 class="assemble-child" style="animation-delay: 0.2s;">CHỌN GIAO THỨC</h2>
+        <div id="choice-buttons" class="assemble-child" style="animation-delay: 0.4s;">
             <button id="goto-ai-tool" class="choice-btn clip-path-button" onmouseover="playSound('hover')" onmousedown="playSound('click')">TOOL A.I THẾ HỆ 3</button>
             <button id="goto-scan-tool" class="choice-btn choice-btn-vip clip-path-button" onmouseover="playSound('hover')" onmousedown="playSound('click')">TOOL QUÉT LÁ BÀI TRỰC TUYẾN</button>
         </div>
@@ -243,16 +258,16 @@
   </div>
   
   <div id="loginScreen">
-    <div id="login-content" class="clip-path-large">
-        <img src="https://i.ibb.co/ynX669hj/LOGO.png" alt="Logo" id="login-logo">
-        <h2>TOOL BCR A.I THẾ HỆ 3</h2>
-        <div id="login-warning" class="clip-path-angular">
+    <div id="login-content" class="clip-path-large assemble">
+        <img src="https://i.ibb.co/ynX669hj/LOGO.png" alt="Logo" id="login-logo" class="assemble-child" style="animation-delay: 0.2s;">
+        <h2 class="assemble-child" style="animation-delay: 0.3s;">TOOL BCR A.I THẾ HỆ 3</h2>
+        <div id="login-warning" class="clip-path-angular assemble-child" style="animation-delay: 0.4s;">
             <p>TOOL CHỈ HOẠT ĐỘNG VỚI CÁC TÀI KHOẢN ĐĂNG KÍ TẠI WWW.F168.CODES</p>
             <a href="http://WWW.F168.CODES" target="_blank" class="register-btn clip-path-button">ĐĂNG KÍ</a>
         </div>
-        <input type="text" id="username" class="clip-path-angular" placeholder="MÃ ĐẶC VỤ (Tên tài khoản)" />
-        <input type="text" id="code" class="clip-path-angular" placeholder="KHÓA MÃ HÓA (Mã truy cập)" />
-        <div class="custom-select-wrapper">
+        <input type="text" id="username" class="clip-path-angular assemble-child" style="animation-delay: 0.5s;" placeholder="MÃ ĐẶC VỤ (Tên tài khoản)" />
+        <input type="text" id="code" class="clip-path-angular assemble-child" style="animation-delay: 0.6s;" placeholder="KHÓA MÃ HÓA (Mã truy cập)" />
+        <div class="custom-select-wrapper assemble-child" style="animation-delay: 0.7s;">
             <div class="custom-select-trigger">CHẾ ĐỘ AN TOÀN</div>
             <ul class="custom-options">
                 <li class="custom-option selected" data-value="safe">CHẾ ĐỘ AN TOÀN</li>
@@ -265,7 +280,7 @@
           <option value="rice">CHẾ ĐỘ CƠM GẠO</option>
           <option value="urgent">CHẾ ĐỘ GỠ NỢ KHẨN CẤP</option>
         </select>
-        <button onclick="checkCode()" class="clip-path-button" onmouseover="playSound('hover')" onmousedown="playSound('click')">[ Thiết lập Kết nối ]</button>
+        <button onclick="checkCode()" class="clip-path-button assemble-child" style="animation-delay: 0.8s;" onmouseover="playSound('hover')" onmousedown="playSound('click')">[ Thiết lập Kết nối ]</button>
         <p id="error"></p>
     </div>
     <footer id="login-footer">
@@ -275,10 +290,14 @@
   </div>
 
   <div id="app" class="hidden">
-    <header>
+    <header class="anim-slide-in" style="animation-delay: 0.2s;">
       <h1>GIAO THỨC PHÂN TÍCH BACCARAT</h1>
-      <div id="coin-display" class="clip-path-angular hidden">
-          <span>XU: </span><span id="coin-balance">--</span> 🪙
+      <div id="energy-display" class="clip-path-angular hidden">
+        <span class="energy-label">NĂNG LƯỢNG</span>
+        <div class="energy-bar-container">
+            <div id="energy-bar-fill"></div>
+        </div>
+        <span id="energy-percentage">--%</span> ⚡
       </div>
       <div id="settings-button" onmouseover="playSound('hover')" onclick="toggleSettings()">⚙️</div>
       <div id="settings-panel" class="clip-path-large">
@@ -297,14 +316,35 @@
           </div>
       </div>
     </header>
-    <div class="ai-container"><div id="ai-avatar" class="ai-avatar-wrapper clip-path-large"><img src="ai-avatar.gif" alt="A.I. Avatar"/></div></div>
-    <div id="ai-status-panel" class="clip-path-angular"><span class="label">> TRẠNG THÁI A.I:</span><span id="ai-log-text">// CHẾ ĐỘ CHỜ - ĐANG ĐỢI LỆNH //</span></div>
-    <div class="main clip-path-large">
-      <div class="selection-area clip-path-large">
+    <div class="ai-container anim-slide-in" style="animation-delay: 0.4s;">
+        <div id="ai-avatar" class="ai-avatar-wrapper clip-path-large">
+            <svg id="ai-core-svg" viewBox="0 0 200 200">
+                <defs>
+                    <filter id="glow-filter">
+                        <feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                <g id="core-rings" filter="url(#glow-filter)">
+                    <path class="core-ring" d="M 100,20 A 80 80 0 1 1 99.9,20" stroke="var(--primary-accent)" stroke-width="3" fill="none" />
+                    <path class="core-ring" d="M 100,40 A 60 60 0 1 1 99.9,40" stroke="var(--primary-accent)" stroke-width="2" fill="none" />
+                    <path class="core-ring" d="M 100,60 A 40 40 0 1 1 99.9,60" stroke="var(--primary-accent)" stroke-width="1.5" fill="none" />
+                </g>
+                <circle id="inner-core" cx="100" cy="100" r="15" fill="var(--primary-accent)" />
+            </svg>
+        </div>
+    </div>
+    <div id="ai-status-panel" class="clip-path-angular anim-slide-in" style="animation-delay: 0.6s;"><span class="label">> TRẠNG THÁI A.I:</span><span id="ai-log-text">// CHẾ ĐỘ CHỜ - ĐANG ĐỢI LỆNH //</span></div>
+    <div class="main clip-path-large anim-slide-in" style="animation-delay: 0.8s;">
+      <div class="selection-area clip-path-large interactive-border">
         <div class="form-group"><label for="lobby-select">KHU VỰC (SẢNH):</label><select id="lobby-select" class="clip-path-angular" onchange="playSound('click')"><option value="">-- CHỌN --</option><option value="SEXY">SEXY</option><option value="DG">DG</option></select></div>
         <div class="form-group"><label for="table-select">TERMINAL (BÀN):</label><select id="table-select" class="clip-path-angular" onchange="playSound('click')" disabled><option value="">-- CHỜ CHỌN KHU VỰC --</option></select></div>
       </div>
       <div id="prediction-lock" class="data-block clip-path-angular">
+        <div class="corner top-left"></div><div class="corner top-right"></div><div class="corner bottom-left"></div><div class="corner bottom-right"></div>
         <h3>A.I. DỰ ĐOÁN</h3>
         <span id="ai-prediction-text">--</span>
         <span id="ai-confidence-value">ĐỘ CHẮC CHẮN: --%</span>
@@ -320,7 +360,7 @@
     </div>
   </div>
 
-  <div id="confirmation-modal" class="modal-overlay clip-path-large">
+  <div id="confirmation-modal" class="modal-overlay clip-path-large" style="display: none;">
       <div class="modal-content">
           <p>KHI KÍCH HOẠT CHẾ ĐỘ NÀY BẠN PHẢI ĐẢM BẢO RẰNG SẼ LUÔN ĐÁNH THEO CHỈ THỊ CỦA TÔI, NẾU ĐÁNH LỆCH TÔI SẼ KHÔNG CHỊU TRÁCH NHIỆM.</p>
           <div class="modal-buttons">
@@ -330,13 +370,23 @@
       </div>
   </div>
 
-  <div id="vip-warning-modal" class="modal-overlay clip-path-large">
+  <div id="vip-warning-modal" class="modal-overlay clip-path-large" style="display: none;">
     <div class="modal-content">
         <h3>CẢNH BÁO CHỨC NĂNG VIP</h3>
         <p class="blinking-warning">ĐÂY LÀ CHỨC NĂNG VIP ! NẾU BẠN CHỌN VÔ ĐÂY PHẢI ĐẢM BẢO VỐN MẠNH ĐỂ CHƠI !!<br>LIÊN HỆ TELE @LONGBAOF168 ĐỂ ĐƯỢC TRUY CẬP !!</p>
         <div id="vip-modal-buttons" class="modal-buttons">
             <button id="vip-confirm" class="clip-path-button">ĐỒNG Ý</button>
             <button id="vip-cancel" class="clip-path-button">HUỶ BỎ</button>
+        </div>
+    </div>
+  </div>
+
+  <div id="low-energy-modal" class="modal-overlay clip-path-large" style="display: none;">
+    <div class="modal-content" style="border-color: var(--glitch-red);">
+        <h3 style="color: var(--glitch-red); text-shadow: 0 0 10px var(--glitch-red);">CẢNH BÁO NĂNG LƯỢNG</h3>
+        <p style="color: #ff8a8a; font-weight: 700;">NĂNG LƯỢNG ĐANG CẠN !<br>ĐỀ NGHỊ RÚT RA NẠP LẠI HOẶC NẠP THÊM VÔ ĐỂ PHỤC HỒI.</p>
+        <div class="modal-buttons">
+            <button id="low-energy-confirm" class="clip-path-button" style="background: var(--glitch-red); color: white;">ĐÃ HIỂU</button>
         </div>
     </div>
   </div>
@@ -350,7 +400,7 @@
     let accounts, tablesByLobby, historyLog, sessionStats, statsChart, dataStreamInterval, dom, matrixInterval, currentUser;
 
     function playSound(soundName) {
-        if (dom && dom.sound[soundName]) {
+        if (dom && dom.sound[soundName] && dom.settings.sfxToggle.checked) {
             const sound = dom.sound[soundName];
             if(sound) { sound.currentTime = 0; sound.play().catch(e => {}); }
         }
@@ -370,6 +420,25 @@
         if (dom.settings.musicToggle.checked) dom.sound.music.play().catch(e => {});
         else dom.sound.music.pause();
     }
+
+    function updateEnergyBar(newEnergy) {
+        const energyFill = document.getElementById('energy-bar-fill');
+        const energyText = document.getElementById('energy-percentage');
+        const clampedEnergy = Math.max(0, Math.min(100, newEnergy));
+        
+        energyFill.style.width = `${clampedEnergy}%`;
+        energyText.textContent = `${clampedEnergy}%`;
+
+        if (clampedEnergy <= 30) {
+            energyFill.style.background = `linear-gradient(90deg, var(--glitch-red), #ff8a8a)`;
+            energyFill.style.boxShadow = `0 0 10px var(--glitch-red)`;
+            if(clampedEnergy > 0) dom.lowEnergyModal.style.display = 'flex'; // Show warning if not completely empty
+        } else {
+            energyFill.style.background = `linear-gradient(90deg, var(--primary-accent), var(--cyber-cyan))`;
+            energyFill.style.boxShadow = `0 0 10px var(--primary-accent)`;
+        }
+    }
+
     function checkCode() {
         playSound('click');
         const codeInput = document.getElementById("code");
@@ -383,11 +452,11 @@
         if (accounts[enteredCode]) {
             currentUser = {
                 code: enteredCode,
-                coins: accounts[enteredCode].coins
+                energy: accounts[enteredCode].energy
             };
             
-            dom.coinBalance.textContent = currentUser.coins;
-            dom.coinDisplay.classList.remove('hidden');
+            updateEnergyBar(currentUser.energy);
+            dom.energyDisplay.classList.remove('hidden');
 
             dom.loginScreen.classList.remove('visible');
             dom.loginScreen.classList.add('hidden-overlay');
@@ -398,6 +467,7 @@
             error.textContent = "LỖI: KHÓA MÃ HÓA KHÔNG HỢP LỆ";
         }
     }
+
     function animateText(element, final_text, isPrediction = false) {
         return new Promise(resolve => {
             const scrambleChars = 'AZXCVBNMSDFGHJKLQWERTYUIOP0123456789#?&@$*';
@@ -405,8 +475,11 @@
             const animate = () => {
                 if (step > final_text.length) {
                     if (isPrediction) {
-                         element.innerHTML = final_text.replace(/(NHÀ CON|NHÀ CÁI)/, `<span style="color: var(--cyber-cyan);">$1</span>`)
-                                                   .replace(/(LONG BẢO|CON ĐÔI|CÁI ĐÔI|HOÀ)/, `<span style="color: var(--primary-accent);">$1</span>`);
+                        let formattedText = final_text
+                            .replace(/(NHÀ CON)/g, `<span style="color: var(--cyber-cyan);">$1</span>`)
+                            .replace(/(NHÀ CÁI)/g, `<span style="color: var(--glitch-red);">$1</span>`)
+                            .replace(/(LONG BẢO|CON ĐÔI|CÁI ĐÔI|HOÀ)/g, `<span style="color: var(--primary-yellow);">$1</span>`);
+                        element.innerHTML = formattedText;
                     }
                     resolve();
                     return;
@@ -426,6 +499,7 @@
             animate();
         });
     }
+    
     function startDataStream() {
         const streamEl = document.getElementById('ai-data-stream');
         if (!streamEl) return;
@@ -453,48 +527,57 @@
         statsChart.data.datasets[0].data = [sessionStats.player, sessionStats.banker, sessionStats.tie];
         statsChart.update();
     }
+    
     function updateBeadRoadDisplay() {
         const historyContainer = document.getElementById('bead-road-history');
         if (!historyContainer) return;
+        
+        // Remove 'newest' class from the previous last bead before clearing
+        const oldNewest = historyContainer.querySelector('.newest');
+        if (oldNewest) oldNewest.classList.remove('newest');
+
         historyContainer.innerHTML = '';
-        historyLog.slice(-36).forEach(result => {
+
+        const latestHistory = historyLog.slice(-36);
+        latestHistory.forEach((result, index) => {
             const bead = document.createElement('div');
             bead.classList.add('road-bead', `${result}-win-bead`);
             const winnerMap = { player: 'P', banker: 'B', tie: 'H' };
             bead.textContent = winnerMap[result];
+
+            if (index === latestHistory.length - 1) {
+                bead.classList.add('newest');
+            }
+
             historyContainer.appendChild(bead);
         });
         historyContainer.scrollTop = historyContainer.scrollHeight;
     }
+
     function startMatrixRain() {
         const canvas = dom.matrixCanvas;
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
-        const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        const nums = '0123456789';
-        const alphabet = katakana + latin + nums;
+        const alphabet = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         const fontSize = 16;
         const columns = canvas.width / fontSize;
-        const rainDrops = [];
-        for (let x = 0; x < columns; x++) {
-            rainDrops[x] = 1;
-        }
+        const rainDrops = Array.from({ length: columns }).fill(1);
+        
         const draw = () => {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillStyle = 'rgba(2, 10, 23, 0.05)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = '#0F0';
-            ctx.font = fontSize + 'px monospace';
-            for (let i = 0; i < rainDrops.length; i++) {
+            ctx.font = `${fontSize}px monospace`;
+            rainDrops.forEach((y, i) => {
                 const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
-                if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                ctx.fillText(text, i * fontSize, y * fontSize);
+                if (y * fontSize > canvas.height && Math.random() > 0.975) {
                     rainDrops[i] = 0;
                 }
                 rainDrops[i]++;
-            }
+            });
         };
         if(matrixInterval) clearInterval(matrixInterval);
         matrixInterval = setInterval(draw, 33);
@@ -530,14 +613,14 @@
             alert("LỖI HỆ THỐNG: CHƯA CHỌN LUỒNG DỮ LIỆU."); return;
         }
 
-        if (!currentUser || currentUser.coins < 5) {
-            alert("LỖI HỆ THỐNG: KHÔNG ĐỦ XU ĐỂ THỰC HIỆN PHÂN TÍCH. (YÊU CẦU: 5 XU)");
+        if (!currentUser || currentUser.energy <= 0) {
+            alert("LỖI HỆ THỐNG: NĂNG LƯỢNG ĐÃ CẠN. VUI LÒNG NẠP THÊM.");
             return;
         }
 
-        currentUser.coins -= 5;
-        accounts[currentUser.code].coins = currentUser.coins; // Cập nhật lại kho dữ liệu
-        dom.coinBalance.textContent = currentUser.coins;
+        currentUser.energy -= 5;
+        accounts[currentUser.code].energy = currentUser.energy;
+        updateEnergyBar(currentUser.energy);
 
         dom.predictButton.disabled = true;
         dom.analysisDeck.classList.remove('visible');
@@ -637,13 +720,13 @@
     }
     document.addEventListener('DOMContentLoaded', () => {
         accounts = {
-            "843191": { coins: 50 }, "772041": { coins: 50 }, "10385": { coins: 50 },
-            "562912": { coins: 50 }, "936257": { coins: 50 }, "41763": { coins: 50 },
-            "605893": { coins: 50 }, "281748": { coins: 50 }, "33950": { coins: 50 },
-            "745124": { coins: 50 }, "881237": { coins: 50 }, "05684": { coins: 50 },
-            "192472": { coins: 50 }, "528110": { coins: 50 }, "67039": { coins: 50 },
-            "409822": { coins: 50 }, "215687": { coins: 50 }, "99473": { coins: 50 },
-            "368053": { coins: 50 }, "710963": { coins: 50 }
+            "843191": { energy: 100 }, "772041": { energy: 100 }, "10385": { energy: 100 },
+            "562912": { energy: 100 }, "936257": { energy: 100 }, "41763": { energy: 100 },
+            "605893": { energy: 100 }, "281748": { energy: 100 }, "33950": { energy: 100 },
+            "745124": { energy: 100 }, "881237": { energy: 100 }, "05684": { energy: 100 },
+            "192472": { energy: 100 }, "528110": { energy: 100 }, "67039": { energy: 100 },
+            "409822": { energy: 100 }, "215687": { energy: 100 }, "99473": { energy: 100 },
+            "368053": { energy: 100 }, "710963": { energy: 100 }
         };
         tablesByLobby = { 
             SEXY: ["C15", "C16", "C02", "C03", "C04", "BACARAT 3", "BACARAT 4", "BACARAT 5", "BACARAT 6", "BACARAT 7"], 
@@ -661,8 +744,7 @@
         dom.predictButton = document.getElementById('predictBtn');
         dom.lobbySelect = document.getElementById('lobby-select');
         dom.tableSelect = document.getElementById('table-select');
-        dom.coinDisplay = document.getElementById('coin-display');
-        dom.coinBalance = document.getElementById('coin-balance');
+        dom.energyDisplay = document.getElementById('energy-display');
         dom.sound.music = document.getElementById('bg-music');
         dom.sound.click = document.getElementById('sfx-click');
         dom.sound.hover = document.getElementById('sfx-hover');
@@ -683,6 +765,13 @@
         dom.modal.vipWarning = document.getElementById('vip-warning-modal');
         dom.modal.vipConfirmBtn = document.getElementById('vip-confirm');
         dom.modal.vipCancelBtn = document.getElementById('vip-cancel');
+        dom.lowEnergyModal = document.getElementById('low-energy-modal');
+        dom.lowEnergyConfirmBtn = document.getElementById('low-energy-confirm');
+
+        dom.lowEnergyConfirmBtn.addEventListener('click', () => {
+            dom.lowEnergyModal.style.display = 'none';
+            playSound('click');
+        });
 
         const gotoAiBtn = document.getElementById('goto-ai-tool');
         const gotoScanBtn = document.getElementById('goto-scan-tool');
