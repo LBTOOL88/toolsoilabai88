@@ -232,11 +232,50 @@
     .main { position:relative; z-index: 5; padding: 25px; max-width: 900px; margin: 0 auto 25px auto; }
 
     .selection-area { padding: 15px; }
-    .selection-area .form-group { display: flex; flex-direction: column; flex-basis: calc(50% - 15px); }
+    .form-row { display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; }
+    .form-group { display: flex; flex-direction: column; flex-grow: 1; min-width: 150px; }
     .selection-area label { margin-bottom: 10px; color: var(--primary-accent); font-weight: 500; }
-    .selection-area select { font-family: 'Rajdhani', sans-serif; background: var(--input-bg); color: var(--text-light); border: 1px solid var(--border-color); padding: 14px 18px; width: 100%; cursor: pointer; }
+    .selection-area select { font-family: 'Rajdhani', sans-serif; background: var(--input-bg); color: var(--text-light); border: 1px solid var(--border-color); padding: 14px 18px; width: 100%; cursor: pointer; height: 51px; box-sizing: border-box;}
+    .live-mode-group { display: flex; flex-direction: column; align-items: center; justify-content: center; padding-bottom: 5px;}
+    .table-group { flex-grow: 2; }
+    .table-input-wrapper { display: flex; align-items: center; gap: 15px; }
     
-    #prediction-lock { position: relative; overflow: hidden; border-width: 1px; min-height: 120px; display: flex; flex-direction: column; justify-content: center; }
+    #pattern-prediction-container {
+        flex-grow: 1;
+        background: var(--input-bg);
+        border: 1px solid var(--border-color);
+        padding: 4px;
+        height: 49px;
+        box-sizing: border-box;
+    }
+    #pattern-prediction-container.hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+    .progress-bar-outer {
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+    }
+    .progress-bar-inner {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(90deg, var(--glitch-red), var(--cyber-magenta));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1em;
+        transition: width 0.5s ease-out;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 0 10px;
+    }
+
+
+    #prediction-lock { position: relative; overflow: hidden; border-width: 1px; min-height: 120px; display: flex; flex-direction: column; justify-content: center; margin-top: 15px; }
     #prediction-lock::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0, 209, 255, 0.2), transparent 50%); animation: scan-light 4s linear infinite; pointer-events: none; }
     @keyframes scan-light { from { transform: translateY(100%); } to { transform: translateY(-100%); } }
     #prediction-lock .corner { position: absolute; width: 20px; height: 20px; border-style: solid; border-color: var(--primary-accent); transition: all 0.3s ease; }
@@ -285,8 +324,9 @@
         .ai-container { padding: 15px 10px 0 10px; }
         #ai-status-panel { font-size: 1em; padding: 12px 15px; }
         #ai-log-text { display: block; margin-top: 5px; }
-        .selection-area .form-group { flex-basis: 100%; margin-bottom: 15px; }
-        .selection-area .form-group:last-child { margin-bottom: 0; }
+        .form-row { flex-direction: column; align-items: stretch; }
+        .table-input-wrapper { flex-direction: column; align-items: stretch; }
+        .live-mode-group { padding-top: 10px; }
         .selection-area select { padding: 12px 16px; }
         #prediction-lock { padding: 15px; min-height: 100px; }
         #ai-prediction-text { font-size: 1.4em; }
@@ -395,8 +435,7 @@
           </div>
           <div class="settings-group">
               <div class="toggle-switch-container"><label for="music-toggle">Nhạc Nền:</label><label class="toggle-switch"><input type="checkbox" id="music-toggle" onchange="toggleMusic()"><span class="toggle-slider"></span></label></div>
-              <div class="toggle-switch-container"><label for="sfx-toggle">Hiệu Ứng Âm Thanh:</label><label class="toggle-switch"><input type="checkbox" id="sfx-toggle" checked><span class="toggle-slider"></span></label></div>
-              <div class="toggle-switch-container"><label for="live-mode-toggle">Chế Độ Live:</label><label class="toggle-switch"><input type="checkbox" id="live-mode-toggle" onchange="toggleLiveMode()"><span class="toggle-slider"></span></label></div>
+              <div class="toggle-switch-container"><label for="sfx-toggle">Âm Thanh:</label><label class="toggle-switch"><input type="checkbox" id="sfx-toggle" checked><span class="toggle-slider"></span></label></div>
           </div>
       </div>
     </header>
@@ -424,8 +463,27 @@
     <div id="ai-status-panel" class="clip-path-angular anim-slide-in" style="animation-delay: 0.6s;"><span class="label">> TRẠNG THÁI A.I:</span><span id="ai-log-text">// CHẾ ĐỘ CHỜ - ĐANG ĐỢI LỆNH //</span></div>
     <div class="main clip-path-large anim-slide-in" style="animation-delay: 0.8s;">
       <div class="selection-area clip-path-large interactive-border">
-        <div class="form-group"><label for="lobby-select">KHU VỰC (SẢNH):</label><select id="lobby-select" class="clip-path-angular" onchange="playSound('click')"><option value="">-- CHỌN --</option><option value="SEXY">SEXY</option><option value="DG">DG</option></select></div>
-        <div class="form-group"><label for="table-select">TERMINAL (BÀN):</label><select id="table-select" class="clip-path-angular" onchange="playSound('click')" disabled><option value="">-- CHỜ CHỌN KHU VỰC --</option></select></div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="lobby-select">KHU VỰC (SẢNH):</label>
+                <select id="lobby-select" class="clip-path-angular" onchange="playSound('click')"><option value="">-- CHỌN --</option><option value="SEXY">SEXY</option><option value="DG">DG</option></select>
+            </div>
+            <div class="form-group table-group">
+                <label for="table-select">TERMINAL (BÀN) & DỰ ĐOÁN CẦU:</label>
+                <div class="table-input-wrapper">
+                    <select id="table-select" class="clip-path-angular" onchange="handleTableChange()" disabled><option value="">-- CHỌN KHU VỰC --</option></select>
+                    <div id="pattern-prediction-container" class="clip-path-angular hidden">
+                        <div class="progress-bar-outer clip-path-button">
+                            <div id="pattern-progress-bar" class="progress-bar-inner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="live-mode-group">
+                <label for="live-mode-toggle">CHẾ ĐỘ LIVE</label>
+                <label class="toggle-switch"><input type="checkbox" id="live-mode-toggle" onchange="toggleLiveMode()"><span class="toggle-slider"></span></label>
+            </div>
+        </div>
       </div>
       <div id="prediction-lock" class="data-block clip-path-angular">
         <div class="corner top-left"></div><div class="corner top-right"></div><div class="corner bottom-left"></div><div class="corner bottom-right"></div>
@@ -528,9 +586,9 @@
         playSound('click');
         if (isLiveModeActive) {
             animateText(dom.ai.logText, "// CHẾ ĐỘ LIVE ĐÃ KÍCH HOẠT. TỰ ĐỘNG CẬP NHẬT DỮ LIỆU... //");
-            if (liveUpdateInterval) clearInterval(liveUpdateInterval); // Clear any existing interval
+            if (liveUpdateInterval) clearInterval(liveUpdateInterval);
             liveUpdateInterval = setInterval(() => {
-                if(dom.appScreen.classList.contains('hidden')) { // Pause if app is not visible
+                if(dom.appScreen.classList.contains('hidden')) {
                     clearInterval(liveUpdateInterval);
                     isLiveModeActive = false;
                     dom.settings.liveModeToggle.checked = false;
@@ -538,7 +596,7 @@
                 };
                 animateText(dom.ai.logText, "// ĐANG NHẬN DỮ LIỆU MỚI TỪ TERMINAL... //");
                 setTimeout(() => updateHistoryInBackground(true), 1000);
-            }, 30000); // 30 seconds
+            }, 30000);
         } else {
             clearInterval(liveUpdateInterval);
             animateText(dom.ai.logText, "// CHẾ ĐỘ LIVE ĐÃ TẮT. //");
@@ -776,7 +834,7 @@
         dom.analysisDeck.classList.add('visible');
         
         if (!isLiveModeActive) {
-            updateHistoryInBackground(false); // Only update history on-demand if not in live mode
+            updateHistoryInBackground(false);
         } else {
             dom.predictButton.disabled = false;
             dom.ai.avatar.classList.remove('analyzing');
@@ -785,22 +843,20 @@
 
     function analyzePrimaryTrend(history, personality) {
         const last_n = history.slice(-10).filter(r => r !== 'tie');
-        if (last_n.length < 3) return { prediction: 'NHÀ CÁI', confidence: '65.2' }; // Default for very new tables
+        if (last_n.length < 3) return { prediction: 'NHÀ CÁI', confidence: '65.2' };
 
         const lastResult = last_n[last_n.length - 1];
         const secondLastResult = last_n[last_n.length - 2];
 
-        // Aggressive Personality: Follows streaks (cầu bệt)
         if (personality === 'aggressive') {
-            if (lastResult === secondLastResult) { // If there's a streak of at least 2
+            if (lastResult === secondLastResult) {
                 return { 
                     prediction: lastResult === 'player' ? 'NHÀ CON' : 'NHÀ CÁI', 
-                    confidence: (Math.random() * 15 + 80).toFixed(1) // High confidence in streaks
+                    confidence: (Math.random() * 15 + 80).toFixed(1)
                 };
             }
         }
         
-        // Cautious Personality: Avoids risks, only predicts on strong signals
         if (personality === 'cautious') {
             const streakCount = (arr, val) => {
                 let count = 0;
@@ -820,24 +876,21 @@
                  return { prediction: 'NHÀ CÁI', confidence: (Math.random() * 10 + 88).toFixed(1) };
             }
             
-            // If no strong signal, advise to skip
             return { prediction: 'BỎ QUA', confidence: 0 };
         }
 
-        // Balanced Personality (Original logic, slightly enhanced)
-        // This is the default case if personality is 'balanced' or unrecognized
         const last4 = last_n.slice(-4);
         if (last4.length === 4 && last4.every(v => v === last4[0])) { 
             const pred = last4[0] === 'player' ? 'NHÀ CON' : 'NHÀ CÁI';
             return { prediction: pred, confidence: (Math.random() * 10 + 88).toFixed(1) }; 
         }
-        if (last4.length === 4 && last4[0] !== last4[1] && last4[1] !== last4[2] && last4[2] !== last4[3]) { // 1-1-1-1 pattern
+        if (last4.length === 4 && last4[0] !== last4[1] && last4[1] !== last4[2] && last4[2] !== last4[3]) {
             const pred = last4[3] === 'player' ? 'NHÀ CÁI' : 'NHÀ CON';
             return { prediction: pred, confidence: (Math.random() * 10 + 75).toFixed(1) };
         }
         const last3 = last_n.slice(-3);
-        if(last3.length === 3 && last3[0] === last3[1] && last3[1] !== last3[2]) { // Breaks a streak of 2
-             const pred = last3[2] === 'player' ? 'NHÀ CON' : 'NHÀ CÁI'; // Predict the new single result
+        if(last3.length === 3 && last3[0] === last3[1] && last3[1] !== last3[2]) {
+             const pred = last3[2] === 'player' ? 'NHÀ CON' : 'NHÀ CÁI';
             return { prediction: pred, confidence: (Math.random() * 15 + 70).toFixed(1) };
         }
         
@@ -853,6 +906,72 @@
     }
     function getBaccaratValue(cardValue) { if (['K', 'Q', 'J', '10'].includes(cardValue)) return 0; if (cardValue === 'A') return 1; return parseInt(cardValue); }
     
+    function updatePatternPrediction() {
+        const history = historyLog.filter(r => r !== 'tie');
+        if (history.length < 6) {
+            dom.patternContainer.classList.add('hidden');
+            return;
+        }
+
+        let bestPattern = { name: "ĐANG PHÂN TÍCH", probability: 0 };
+
+        const lastResult = history[history.length - 1];
+        let streak = 0;
+        for (let i = history.length - 1; i >= 0; i--) {
+            if (history[i] === lastResult) streak++;
+            else break;
+        }
+        if (streak >= 2) {
+            const probability = 50 + streak * 7;
+            if (probability > bestPattern.probability) {
+                bestPattern = { name: `CẦU BỆT ${lastResult === 'player' ? 'CON' : 'CÁI'}`, probability };
+            }
+        }
+
+        const last6 = history.slice(-6);
+        if (last6.length === 6 && last6[0] !== last6[1] && last6[1] !== last6[2] && last6[2] !== last6[3] && last6[3] !== last6[4] && last6[4] !== last6[5]) {
+            const probability = 80;
+             if (probability > bestPattern.probability) {
+                bestPattern = { name: "CẦU 1-1", probability };
+            }
+        }
+        
+        const last8 = history.slice(-8);
+        if(last8.length === 8) {
+            const p = last8[0];
+            const q = last8[4];
+            if (p !== q && 
+                last8[0]===p && last8[1]===p && last8[2]===p && last8[3]===p &&
+                last8[4]===q && last8[5]===q && last8[6]===q &&
+                last8[7]===p) 
+            {
+                const probability = 85;
+                if (probability > bestPattern.probability) {
+                    bestPattern = { name: "CẦU 4-3-1", probability };
+                }
+            }
+        }
+
+        if (history.length > 20 && bestPattern.probability < 55) {
+            const probability = 55;
+            bestPattern = { name: "CẦU DÀI", probability };
+        }
+        
+        if (bestPattern.probability >= 95) {
+            bestPattern.name = "CẦU TẤT TAY 🔥";
+        }
+
+        if (bestPattern.probability >= 50) {
+            dom.patternContainer.classList.remove('hidden');
+            const finalProb = Math.min(bestPattern.probability, 100);
+            dom.patternProgressBar.style.width = `${finalProb}%`;
+            dom.patternProgressBar.textContent = `${bestPattern.name} - ${finalProb.toFixed(0)}%`;
+        } else {
+            dom.patternContainer.classList.add('hidden');
+        }
+    }
+
+
     function updateHistoryInBackground(isLiveUpdate) {
         if(isLiveUpdate) playSound('deal');
         const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
@@ -890,6 +1009,7 @@
         sessionStats.total++;
         updateStatsChart();
         updateBeadRoadDisplay();
+        updatePatternPrediction();
         
         if (!isLiveUpdate) {
              const winnerMap = { player: 'Player', banker: 'Banker', tie: 'Hòa' };
@@ -900,6 +1020,7 @@
              animateText(dom.ai.logText, `// DỮ LIỆU ĐÃ CẬP NHẬT. CHỜ LỆNH PHÂN TÍCH TIẾP THEO... //`);
         }
     }
+    
     function populateTables() {
         const l = dom.lobbySelect.value;
         dom.tableSelect.innerHTML = '<option value="">-- CHỜ CHỌN KHU VỰC --</option>';
@@ -910,7 +1031,44 @@
             });
             dom.tableSelect.disabled = false;
         } else { dom.tableSelect.disabled = true; }
+        
+        historyLog = [];
+        sessionStats = { player: 0, banker: 0, tie: 0, total: 0 };
+        updateStatsChart();
+        updateBeadRoadDisplay();
+        updatePatternPrediction();
     }
+    
+    function simulateNewTableHistory() {
+        historyLog = [];
+        sessionStats = { player: 0, banker: 0, tie: 0, total: 0 };
+        const outcomes = ['player', 'banker'];
+        const numPreviousHands = Math.floor(Math.random() * 20) + 10; // 10 to 29 previous hands
+        for(let i=0; i < numPreviousHands; i++) {
+            const winner = outcomes[Math.floor(Math.random() * outcomes.length)];
+             historyLog.push(winner);
+             sessionStats[winner]++;
+             sessionStats.total++;
+        }
+        updateStatsChart();
+        updateBeadRoadDisplay();
+        updatePatternPrediction();
+    }
+
+    function handleTableChange() {
+        playSound('click');
+        if (dom.tableSelect.value) {
+            simulateNewTableHistory();
+        } else {
+            // Clear history if no table is selected
+            historyLog = [];
+            sessionStats = { player: 0, banker: 0, tie: 0, total: 0 };
+            updateStatsChart();
+            updateBeadRoadDisplay();
+            updatePatternPrediction();
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         accounts = {
             "843191": { energy: 100 }, "772041": { energy: 100 }, "10385": { energy: 100 },
@@ -953,6 +1111,8 @@
         dom.ai.predictionText = document.getElementById('ai-prediction-text');
         dom.ai.confidenceValue = document.getElementById('ai-confidence-value');
         dom.analysisDeck = document.getElementById('analysis-deck');
+        dom.patternContainer = document.getElementById('pattern-prediction-container');
+        dom.patternProgressBar = document.getElementById('pattern-progress-bar');
         dom.modal.container = document.getElementById('confirmation-modal');
         dom.modal.confirmBtn = document.getElementById('modal-confirm');
         dom.modal.cancelBtn = document.getElementById('modal-cancel');
@@ -1033,8 +1193,6 @@
 
         initializeChart();
         dom.lobbySelect.addEventListener('change', () => { playSound('click'); populateTables(); });
-        dom.tableSelect.addEventListener('change', () => playSound('click'));
-        populateTables();
         
         startBootSequence();
     });
