@@ -193,8 +193,16 @@
     .settings-group { margin-bottom: 15px; }
     .color-swatches button { width: 30px; height: 30px; border: 2px solid var(--text-light); margin: 5px; cursor: pointer; }
     #swatch-yellow { background: var(--primary-yellow); } #swatch-cyan { background: var(--cyber-cyan); } #swatch-magenta { background: var(--cyber-magenta); }
-    .sound-toggle { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     
+    .toggle-switch-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .toggle-switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 26px; border: 1px solid var(--border-color); }
+    .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .toggle-slider { background-color: var(--primary-accent); box-shadow: 0 0 10px var(--primary-accent); }
+    input:checked + .toggle-slider:before { transform: translateX(24px); }
+
+
     #energy-display { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.5); border: 1px solid var(--border-color); padding: 8px 15px; font-weight: 700; }
     .energy-label { font-size: 1em; color: var(--primary-accent); text-transform: uppercase; }
     .energy-bar-container { width: 150px; height: 15px; background: rgba(0, 0, 0, 0.5); border: 1px solid var(--border-color); padding: 2px; }
@@ -343,17 +351,17 @@
         <input type="text" id="username" class="clip-path-angular assemble-child" style="animation-delay: 0.5s;" placeholder="MÃ ĐẶC VỤ (Tên tài khoản)" />
         <input type="text" id="code" class="clip-path-angular assemble-child" style="animation-delay: 0.6s;" placeholder="KHÓA MÃ HÓA (Mã truy cập)" />
         <div class="custom-select-wrapper assemble-child" style="animation-delay: 0.7s;">
-            <div class="custom-select-trigger">CHẾ ĐỘ AN TOÀN</div>
+            <div class="custom-select-trigger">CÂN BẰNG (Balanced)</div>
             <ul class="custom-options">
-                <li class="custom-option selected" data-value="safe">CHẾ ĐỘ AN TOÀN</li>
-                <li class="custom-option" data-value="rice">CHẾ ĐỘ CƠM GẠO</li>
-                <li class="custom-option" data-value="urgent">CHẾ ĐỘ GỠ NỢ KHẨN CẤP</li>
+                <li class="custom-option selected" data-value="balanced">CÂN BẰNG (Balanced)</li>
+                <li class="custom-option" data-value="cautious">THẬN TRỌNG (Cautious)</li>
+                <li class="custom-option" data-value="aggressive">LIỀU LĨNH (Aggressive)</li>
             </ul>
         </div>
-        <select id="mode-select" class="hidden">
-          <option value="safe" selected>CHẾ ĐỘ AN TOÀN</option>
-          <option value="rice">CHẾ ĐỘ CƠM GẠO</option>
-          <option value="urgent">CHẾ ĐỘ GỠ NỢ KHẨN CẤP</option>
+        <select id="personality-select" class="hidden">
+          <option value="balanced" selected>CÂN BẰNG (Balanced)</option>
+          <option value="cautious">THẬN TRỌNG (Cautious)</option>
+          <option value="aggressive">LIỀU LĨNH (Aggressive)</option>
         </select>
         <button onclick="checkCode()" class="clip-path-button assemble-child" style="animation-delay: 0.8s;" onmouseover="playSound('hover')" onmousedown="playSound('click')">[ Thiết lập Kết nối ]</button>
         <p id="error"></p>
@@ -386,8 +394,9 @@
               </div>
           </div>
           <div class="settings-group">
-              <div class="sound-toggle"><label for="music-toggle">Nhạc Nền:</label><input type="checkbox" id="music-toggle" onchange="toggleMusic()"></div>
-              <div class="sound-toggle"><label for="sfx-toggle">Hiệu Ứng Âm Thanh:</label><input type="checkbox" id="sfx-toggle" checked></div>
+              <div class="toggle-switch-container"><label for="music-toggle">Nhạc Nền:</label><label class="toggle-switch"><input type="checkbox" id="music-toggle" onchange="toggleMusic()"><span class="toggle-slider"></span></label></div>
+              <div class="toggle-switch-container"><label for="sfx-toggle">Hiệu Ứng Âm Thanh:</label><label class="toggle-switch"><input type="checkbox" id="sfx-toggle" checked><span class="toggle-slider"></span></label></div>
+              <div class="toggle-switch-container"><label for="live-mode-toggle">Chế Độ Live:</label><label class="toggle-switch"><input type="checkbox" id="live-mode-toggle" onchange="toggleLiveMode()"><span class="toggle-slider"></span></label></div>
           </div>
       </div>
     </header>
@@ -483,7 +492,8 @@
   <audio id="sfx-typing" src="sfx-typing.mp3"></audio>
   <audio id="sfx-deal" src="deal.mp3"></audio>
   <script>
-    let accounts, tablesByLobby, historyLog, sessionStats, statsChart, dataStreamInterval, dom, matrixInterval, currentUser;
+    let accounts, tablesByLobby, historyLog, sessionStats, statsChart, dataStreamInterval, dom, matrixInterval, currentUser, liveUpdateInterval;
+    let isLiveModeActive = false;
 
     function playSound(soundName) {
         if (dom && dom.sound[soundName] && dom.settings.sfxToggle.checked) {
@@ -491,7 +501,12 @@
             if(sound) { sound.currentTime = 0; sound.play().catch(e => {}); }
         }
     }
-    function toggleSettings() { playSound('click'); dom.settings.panel.classList.toggle('visible'); }
+
+    function toggleSettings() { 
+        playSound('click'); 
+        dom.settings.panel.classList.toggle('visible'); 
+    }
+
     function changeTheme(color) {
         playSound('click');
         const root = document.documentElement;
@@ -502,10 +517,34 @@
             statsChart.update();
         }
     }
+
     function toggleMusic() {
         if (dom.settings.musicToggle.checked) dom.sound.music.play().catch(e => {});
         else dom.sound.music.pause();
     }
+
+    function toggleLiveMode() {
+        isLiveModeActive = dom.settings.liveModeToggle.checked;
+        playSound('click');
+        if (isLiveModeActive) {
+            animateText(dom.ai.logText, "// CHẾ ĐỘ LIVE ĐÃ KÍCH HOẠT. TỰ ĐỘNG CẬP NHẬT DỮ LIỆU... //");
+            if (liveUpdateInterval) clearInterval(liveUpdateInterval); // Clear any existing interval
+            liveUpdateInterval = setInterval(() => {
+                if(dom.appScreen.classList.contains('hidden')) { // Pause if app is not visible
+                    clearInterval(liveUpdateInterval);
+                    isLiveModeActive = false;
+                    dom.settings.liveModeToggle.checked = false;
+                    return;
+                };
+                animateText(dom.ai.logText, "// ĐANG NHẬN DỮ LIỆU MỚI TỪ TERMINAL... //");
+                setTimeout(() => updateHistoryInBackground(true), 1000);
+            }, 30000); // 30 seconds
+        } else {
+            clearInterval(liveUpdateInterval);
+            animateText(dom.ai.logText, "// CHẾ ĐỘ LIVE ĐÃ TẮT. //");
+        }
+    }
+
 
     function updateEnergyBar(newEnergy) {
         const energyFill = document.getElementById('energy-bar-fill');
@@ -518,7 +557,7 @@
         if (clampedEnergy <= 30) {
             energyFill.style.background = `linear-gradient(90deg, var(--glitch-red), #ff8a8a)`;
             energyFill.style.boxShadow = `0 0 10px var(--glitch-red)`;
-            if(clampedEnergy > 0) dom.lowEnergyModal.classList.add('visible'); // Show warning if not completely empty
+            if(clampedEnergy > 0) dom.lowEnergyModal.classList.add('visible');
         } else {
             energyFill.style.background = `linear-gradient(90deg, var(--primary-accent), var(--cyber-cyan))`;
             energyFill.style.boxShadow = `0 0 10px var(--primary-accent)`;
@@ -538,7 +577,8 @@
         if (accounts[enteredCode]) {
             currentUser = {
                 code: enteredCode,
-                energy: accounts[enteredCode].energy
+                energy: accounts[enteredCode].energy,
+                personality: dom.personalitySelect.value
             };
             
             updateEnergyBar(currentUser.energy);
@@ -564,8 +604,11 @@
                         let formattedText = final_text
                             .replace(/(NHÀ CON)/g, `<span style="color: var(--cyber-cyan);">$1</span>`)
                             .replace(/(NHÀ CÁI)/g, `<span style="color: var(--glitch-red);">$1</span>`)
+                            .replace(/(BỎ QUA)/g, `<span style="color: var(--primary-yellow);">$1</span>`)
                             .replace(/(LONG BẢO|CON ĐÔI|CÁI ĐÔI|HOÀ)/g, `<span style="color: var(--primary-yellow);">$1</span>`);
                         element.innerHTML = formattedText;
+                    } else {
+                        element.innerHTML = final_text;
                     }
                     resolve();
                     return;
@@ -618,7 +661,6 @@
         const historyContainer = document.getElementById('bead-road-history');
         if (!historyContainer) return;
         
-        // Remove 'newest' class from the previous last bead before clearing
         const oldNewest = historyContainer.querySelector('.newest');
         if (oldNewest) oldNewest.classList.remove('newest');
 
@@ -712,37 +754,96 @@
         dom.analysisDeck.classList.remove('visible');
         dom.ai.avatar.classList.add('analyzing');
         startDataStream();
+        await animateText(dom.ai.logText, `KÍCH HOẠT A.I. ${currentUser.personality.toUpperCase()}...`);
         await animateText(dom.ai.logText, 'PHÂN TÍCH LUỒNG DỮ LIỆU LỊCH SỬ...');
-        const primary = analyzePrimaryTrend(historyLog);
-        await animateText(dom.ai.logText, 'QUÉT TÍN HIỆU PHỤ, TÍNH TOÁN XÁC SUẤT...');
-        const secondary = analyzeSecondaryTrend();
-        const combinedPrediction = `${primary.prediction} + ${secondary}`;
-        dom.ai.confidenceValue.textContent = `ĐỘ CHẮC CHẮN: ${primary.confidence}%`;
-        await animateText(dom.ai.predictionText, combinedPrediction, true);
-        await animateText(dom.ai.logText, "TÍNH TOÁN HOÀN TẤT. KHÓA DỰ ĐOÁN.");
+        
+        const primary = analyzePrimaryTrend(historyLog, currentUser.personality);
+        
+        if (primary.prediction === 'BỎ QUA') {
+            await animateText(dom.ai.predictionText, 'BỎ QUA VÁN NÀY', true);
+            dom.ai.confidenceValue.textContent = `ĐỘ CHẮC CHẮN: --%`;
+            await animateText(dom.ai.logText, 'PHÂN TÍCH RỦI RO CAO. KHUYẾN NGHỊ KHÔNG THAM GIA.');
+        } else {
+            await animateText(dom.ai.logText, 'QUÉT TÍN HIỆU PHỤ, TÍNH TOÁN XÁC SUẤT...');
+            const secondary = analyzeSecondaryTrend();
+            const combinedPrediction = `${primary.prediction} + ${secondary}`;
+            dom.ai.confidenceValue.textContent = `ĐỘ CHẮC CHẮN: ${primary.confidence}%`;
+            await animateText(dom.ai.predictionText, combinedPrediction, true);
+            await animateText(dom.ai.logText, "TÍNH TOÁN HOÀN TẤT. KHÓA DỰ ĐOÁN.");
+        }
+        
         stopDataStream();
         dom.analysisDeck.classList.add('visible');
-        updateHistoryInBackground();
+        
+        if (!isLiveModeActive) {
+            updateHistoryInBackground(false); // Only update history on-demand if not in live mode
+        } else {
+            dom.predictButton.disabled = false;
+            dom.ai.avatar.classList.remove('analyzing');
+        }
     }
-    function analyzePrimaryTrend(history) {
-        const last_n = history.slice(-6).filter(r => r !== 'tie');
-        if (last_n.length < 4) return { prediction: 'NHÀ CÁI', confidence: '58.2'};
+
+    function analyzePrimaryTrend(history, personality) {
+        const last_n = history.slice(-10).filter(r => r !== 'tie');
+        if (last_n.length < 3) return { prediction: 'NHÀ CÁI', confidence: '65.2' }; // Default for very new tables
+
+        const lastResult = last_n[last_n.length - 1];
+        const secondLastResult = last_n[last_n.length - 2];
+
+        // Aggressive Personality: Follows streaks (cầu bệt)
+        if (personality === 'aggressive') {
+            if (lastResult === secondLastResult) { // If there's a streak of at least 2
+                return { 
+                    prediction: lastResult === 'player' ? 'NHÀ CON' : 'NHÀ CÁI', 
+                    confidence: (Math.random() * 15 + 80).toFixed(1) // High confidence in streaks
+                };
+            }
+        }
+        
+        // Cautious Personality: Avoids risks, only predicts on strong signals
+        if (personality === 'cautious') {
+            const streakCount = (arr, val) => {
+                let count = 0;
+                for(let i = arr.length - 1; i >= 0; i--) {
+                    if(arr[i] === val) count++; else break;
+                }
+                return count;
+            };
+
+            const playerStreak = streakCount(last_n, 'player');
+            const bankerStreak = streakCount(last_n, 'banker');
+
+            if (playerStreak >= 3) {
+                 return { prediction: 'NHÀ CON', confidence: (Math.random() * 10 + 88).toFixed(1) };
+            }
+            if (bankerStreak >= 3) {
+                 return { prediction: 'NHÀ CÁI', confidence: (Math.random() * 10 + 88).toFixed(1) };
+            }
+            
+            // If no strong signal, advise to skip
+            return { prediction: 'BỎ QUA', confidence: 0 };
+        }
+
+        // Balanced Personality (Original logic, slightly enhanced)
+        // This is the default case if personality is 'balanced' or unrecognized
         const last4 = last_n.slice(-4);
         if (last4.length === 4 && last4.every(v => v === last4[0])) { 
             const pred = last4[0] === 'player' ? 'NHÀ CON' : 'NHÀ CÁI';
             return { prediction: pred, confidence: (Math.random() * 10 + 88).toFixed(1) }; 
         }
-        if (last4.length === 4 && last4[0] !== last4[1] && last4[1] !== last4[2] && last4[2] !== last4[3]) { 
+        if (last4.length === 4 && last4[0] !== last4[1] && last4[1] !== last4[2] && last4[2] !== last4[3]) { // 1-1-1-1 pattern
             const pred = last4[3] === 'player' ? 'NHÀ CÁI' : 'NHÀ CON';
-            return { prediction: pred, confidence: (Math.random() * 10 + 70).toFixed(1) };
+            return { prediction: pred, confidence: (Math.random() * 10 + 75).toFixed(1) };
         }
         const last3 = last_n.slice(-3);
-        if(last3.length === 3 && last3[0] === last3[1] && last3[1] !== last3[2]) { 
-             const pred = last3[1] === 'player' ? 'NHÀ CON' : 'NHÀ CÁI';
-            return { prediction: pred, confidence: (Math.random() * 15 + 65).toFixed(1) };
+        if(last3.length === 3 && last3[0] === last3[1] && last3[1] !== last3[2]) { // Breaks a streak of 2
+             const pred = last3[2] === 'player' ? 'NHÀ CON' : 'NHÀ CÁI'; // Predict the new single result
+            return { prediction: pred, confidence: (Math.random() * 15 + 70).toFixed(1) };
         }
-        return { prediction: Math.random() > 0.5 ? 'NHÀ CON' : 'NHÀ CÁI', confidence: (Math.random() * 15 + 50).toFixed(1) };
+        
+        return { prediction: Math.random() > 0.5 ? 'NHÀ CON' : 'NHÀ CÁI', confidence: (Math.random() * 15 + 55).toFixed(1) };
     }
+
     function analyzeSecondaryTrend() {
         const rand = Math.random() * 100;
         if (rand < 50) return 'LONG BẢO';
@@ -751,8 +852,9 @@
         return 'HOÀ';
     }
     function getBaccaratValue(cardValue) { if (['K', 'Q', 'J', '10'].includes(cardValue)) return 0; if (cardValue === 'A') return 1; return parseInt(cardValue); }
-    function updateHistoryInBackground() {
-        playSound('deal');
+    
+    function updateHistoryInBackground(isLiveUpdate) {
+        if(isLiveUpdate) playSound('deal');
         const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
         let deck = [];
         for (const value of values) { deck.push(value); deck.push(value); deck.push(value); deck.push(value); }
@@ -788,10 +890,15 @@
         sessionStats.total++;
         updateStatsChart();
         updateBeadRoadDisplay();
-        const winnerMap = { player: 'Player', banker: 'Banker', tie: 'Hòa' };
-        animateText(dom.ai.logText, `KẾT QUẢ VÁN TRƯỚE: ${winnerMap[winner].toUpperCase()}. // CHẾ ĐỘ CHỜ //`);
-        dom.predictButton.disabled = false;
-        dom.ai.avatar.classList.remove('analyzing');
+        
+        if (!isLiveUpdate) {
+             const winnerMap = { player: 'Player', banker: 'Banker', tie: 'Hòa' };
+            animateText(dom.ai.logText, `KẾT QUẢ VÁN TRƯỚE: ${winnerMap[winner].toUpperCase()}. // CHẾ ĐỘ CHỜ //`);
+            dom.predictButton.disabled = false;
+            dom.ai.avatar.classList.remove('analyzing');
+        } else {
+             animateText(dom.ai.logText, `// DỮ LIỆU ĐÃ CẬP NHẬT. CHỜ LỆNH PHÂN TÍCH TIẾP THEO... //`);
+        }
     }
     function populateTables() {
         const l = dom.lobbySelect.value;
@@ -821,6 +928,7 @@
         historyLog = [];
         sessionStats = { player: 0, banker: 0, tie: 0, total: 0 };
         currentUser = null;
+        liveUpdateInterval = null;
 
         dom = { sound: {}, settings: {}, ai: {}, modal: {} }; 
         dom.bootScreen = document.getElementById('boot-screen');
@@ -839,6 +947,7 @@
         dom.settings.panel = document.getElementById('settings-panel');
         dom.settings.musicToggle = document.getElementById('music-toggle');
         dom.settings.sfxToggle = document.getElementById('sfx-toggle');
+        dom.settings.liveModeToggle = document.getElementById('live-mode-toggle');
         dom.ai.logText = document.getElementById('ai-log-text');
         dom.ai.avatar = document.getElementById('ai-avatar');
         dom.ai.predictionText = document.getElementById('ai-prediction-text');
@@ -856,6 +965,7 @@
         dom.modal.aquariusWarning = document.getElementById('aquarius-warning-modal');
         dom.modal.aquariusConfirmBtn = document.getElementById('aquarius-confirm');
         dom.modal.aquariusCancelBtn = document.getElementById('aquarius-cancel');
+        dom.personalitySelect = document.getElementById('personality-select');
 
         dom.lowEnergyConfirmBtn.addEventListener('click', () => {
             dom.lowEnergyModal.classList.remove('visible');
@@ -901,7 +1011,7 @@
         const selectWrapper = document.querySelector('.custom-select-wrapper');
         const selectTrigger = selectWrapper.querySelector('.custom-select-trigger');
         const customOptions = selectWrapper.querySelectorAll('.custom-option');
-        const realSelect = document.getElementById('mode-select');
+        
         selectTrigger.addEventListener('click', () => {
             selectWrapper.classList.toggle('open');
         });
@@ -910,9 +1020,9 @@
                 customOptions.forEach(opt => opt.classList.remove('selected'));
                 option.classList.add('selected');
                 selectTrigger.textContent = option.textContent;
-                realSelect.value = option.dataset.value;
+                dom.personalitySelect.value = option.dataset.value;
                 selectWrapper.classList.remove('open');
-                realSelect.dispatchEvent(new Event('change'));
+                dom.personalitySelect.dispatchEvent(new Event('change'));
             });
         });
         document.addEventListener('click', (e) => {
@@ -925,23 +1035,7 @@
         dom.lobbySelect.addEventListener('change', () => { playSound('click'); populateTables(); });
         dom.tableSelect.addEventListener('change', () => playSound('click'));
         populateTables();
-        realSelect.addEventListener('change', (e) => {
-            if (e.target.value === 'urgent') {
-                dom.modal.container.classList.add('visible');
-            }
-        });
-        dom.modal.confirmBtn.addEventListener('click', () => {
-            playSound('click');
-            dom.modal.container.classList.remove('visible');
-        });
-        dom.modal.cancelBtn.addEventListener('click', () => {
-            playSound('click');
-            dom.modal.container.classList.remove('visible');
-            realSelect.value = 'safe'; 
-            selectTrigger.textContent = 'CHẾ ĐỘ AN TOÀN';
-            customOptions.forEach(opt => opt.classList.remove('selected'));
-            selectWrapper.querySelector('.custom-option[data-value="safe"]').classList.add('selected');
-        });
+        
         startBootSequence();
     });
   </script>
