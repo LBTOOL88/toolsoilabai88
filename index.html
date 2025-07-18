@@ -42,87 +42,137 @@
     .clip-path-large { clip-path: polygon(0 15px, 15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%); }
     .clip-path-button { clip-path: polygon(0 10px, 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%); }
 
-    #boot-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-dark); z-index: 10002; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 1s ease-in-out; }
-    #boot-log { width: 90%; max-width: 600px; font-size: 1.2em; color: var(--cyber-cyan); text-align: left; margin-bottom: 30px; height: 200px; }
-    #boot-log p { margin: 5px 0; opacity: 0; transition: opacity 0.5s ease; }
-    #boot-log p.visible { opacity: 1; }
-    #progress-bar-container { width: 90%; max-width: 600px; height: 30px; border: 2px solid var(--border-color); background: rgba(0,0,0,0.3); padding: 4px; }
-    #progress-bar { width: 0%; height: 100%; background-color: var(--primary-accent); box-shadow: 0 0 15px var(--primary-accent); transition: width 0.2s linear; }
-    #progress-text { color: var(--text-light); margin-top: 10px; font-size: 1.2em; font-weight: 700; }
+    /* --- CSS CHO INTRO HUD MỚI --- */
+    #boot-screen {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background-color: var(--bg-dark);
+        z-index: 10002;
+        display: flex; justify-content: center; align-items: center;
+        transition: opacity 1.5s ease-in-out, filter 1.5s ease-in-out;
+    }
+    #boot-screen.finished {
+        opacity: 0;
+        filter: blur(10px) brightness(2);
+    }
+
+    .boot-grid-overlay {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background-image:
+            linear-gradient(rgba(0, 209, 255, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 209, 255, 0.1) 1px, transparent 1px);
+        background-size: 50px 50px;
+        opacity: 0;
+        animation: fadeIn 1s 0.5s forwards;
+    }
+
+    .boot-corner {
+        position: absolute;
+        width: 40px; height: 40px;
+        border: 2px solid var(--primary-accent);
+        opacity: 0;
+    }
+    .boot-corner.top-left { top: 20px; left: 20px; border-right: none; border-bottom: none; animation: slideInFromTopLeft 1s 0.2s forwards; }
+    .boot-corner.top-right { top: 20px; right: 20px; border-left: none; border-bottom: none; animation: slideInFromTopRight 1s 0.2s forwards; }
+    .boot-corner.bottom-left { bottom: 20px; left: 20px; border-right: none; border-top: none; animation: slideInFromBottomLeft 1s 0.2s forwards; }
+    .boot-corner.bottom-right { bottom: 20px; right: 20px; border-left: none; border-top: none; animation: slideInFromBottomRight 1s 0.2s forwards; }
+
+    #boot-center-logo-container {
+        width: 200px; height: 200px;
+        display: flex; justify-content: center; align-items: center;
+        perspective: 1000px;
+    }
+    #boot-logo {
+        width: 150px; height: 150px;
+        border-radius: 50%;
+        opacity: 0;
+        filter: drop-shadow(0 0 10px var(--primary-accent));
+        animation: revealLogo 2s 1.5s forwards;
+    }
+
+    .boot-text-panel {
+        position: absolute;
+        width: 250px;
+        color: var(--cyber-cyan);
+        font-family: monospace;
+        font-size: 0.9em;
+        opacity: 0;
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        background: rgba(2, 10, 23, 0.5);
+    }
+    #boot-text-left { left: 40px; top: 100px; animation: slideInFromLeft 1s 2s forwards; }
+    #boot-text-right { right: 40px; bottom: 100px; text-align: right; animation: slideInFromRight 1s 2s forwards; }
+    .boot-text-panel p { margin: 2px 0; }
+    .text-success { color: #28a745; }
+    .text-fail { color: var(--glitch-red); }
+
+    .boot-scanline {
+        position: absolute;
+        top: 0; left: 0;
+        width: 2px; height: 100%;
+        background: var(--primary-accent);
+        box-shadow: 0 0 15px var(--primary-accent);
+        opacity: 0.6;
+        animation: scan 1s ease-in-out 1s forwards;
+    }
+
+    #boot-progress-container {
+        position: absolute;
+        bottom: 40px;
+        width: 50%;
+        text-align: center;
+    }
+    #boot-status-text {
+        font-size: 1.2em;
+        letter-spacing: 2px;
+        margin-bottom: 10px;
+        opacity: 0;
+        animation: fadeIn 1s 2.5s forwards;
+    }
+    #boot-progress-bar-new {
+        height: 4px;
+        background: rgba(0, 209, 255, 0.2);
+        transform: scaleX(0);
+        transform-origin: left;
+        animation: fillBar 2s 3s forwards;
+    }
+
+    @keyframes fadeIn { to { opacity: 1; } }
+    @keyframes slideInFromTopLeft { from { opacity: 0; transform: translate(-30px, -30px); } to { opacity: 1; transform: translate(0, 0); } }
+    @keyframes slideInFromTopRight { from { opacity: 0; transform: translate(30px, -30px); } to { opacity: 1; transform: translate(0, 0); } }
+    @keyframes slideInFromBottomLeft { from { opacity: 0; transform: translate(-30px, 30px); } to { opacity: 1; transform: translate(0, 0); } }
+    @keyframes slideInFromBottomRight { from { opacity: 0; transform: translate(30px, 30px); } to { opacity: 1; transform: translate(0, 0); } }
+    @keyframes slideInFromLeft { from { opacity: 0; transform: translateX(-50px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes slideInFromRight { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes scan { from { transform: translateX(-100px); } to { transform: translateX(100vw); } }
+    @keyframes fillBar { to { transform: scaleX(1); } }
+    @keyframes revealLogo {
+        0% { opacity: 0; transform: rotateY(90deg) scale(0.5); filter: blur(20px) drop-shadow(0 0 10px var(--primary-accent)); }
+        60% { opacity: 0.8; transform: rotateY(-10deg) scale(1.1); filter: blur(5px) drop-shadow(0 0 30px var(--primary-accent)); }
+        100% { opacity: 1; transform: rotateY(0deg) scale(1); filter: blur(0) drop-shadow(0 0 20px var(--primary-accent)); }
+    }
+    /* --- KẾT THÚC CSS INTRO MỚI --- */
 
     #choiceScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10001; text-align: center; padding: 20px; box-sizing: border-box; }
     #choice-content { 
-        z-index: 1; 
-        background: var(--container-bg); 
-        backdrop-filter: blur(8px); 
-        padding: 40px; 
-        border: 1px solid var(--border-color); 
-        width: 100%; 
-        max-width: 600px; 
-        display: flex; 
-        flex-direction: column; 
-        align-items: center;
-        box-shadow: 0 0 35px rgba(0, 209, 255, 0.3), inset 0 0 25px rgba(0, 209, 255, 0.2);
-        transition: all 0.3s ease;
+        z-index: 1; background: var(--container-bg); backdrop-filter: blur(8px); padding: 40px; border: 1px solid var(--border-color); 
+        width: 100%; max-width: 600px; display: flex; flex-direction: column; align-items: center;
+        box-shadow: 0 0 35px rgba(0, 209, 255, 0.3), inset 0 0 25px rgba(0, 209, 255, 0.2); transition: all 0.3s ease;
     }
-    #choice-content:hover {
-        border-color: var(--primary-accent);
-        box-shadow: 0 0 50px rgba(0, 209, 255, 0.5), inset 0 0 30px rgba(0, 209, 255, 0.3);
-    }
-    #choice-subtitle {
-        font-size: 1.5em;
-        font-weight: 500;
-        color: var(--text-light);
-        margin-top: 0;
-        margin-bottom: 10px;
-        letter-spacing: 4px;
-        text-transform: uppercase;
-    }
-    #choice-content h2 { 
-        font-size: 2.8em; 
-        font-weight: 700; 
-        color: var(--primary-accent); 
-        text-shadow: 0 0 8px var(--primary-accent), 0 0 15px var(--primary-accent); 
-        margin-top: 0; 
-        margin-bottom: 30px; 
-        letter-spacing: 3px; 
-    }
+    #choice-content:hover { border-color: var(--primary-accent); box-shadow: 0 0 50px rgba(0, 209, 255, 0.5), inset 0 0 30px rgba(0, 209, 255, 0.3); }
+    #choice-subtitle { font-size: 1.5em; font-weight: 500; color: var(--text-light); margin-top: 0; margin-bottom: 10px; letter-spacing: 4px; text-transform: uppercase; }
+    #choice-content h2 { font-size: 2.8em; font-weight: 700; color: var(--primary-accent); text-shadow: 0 0 8px var(--primary-accent), 0 0 15px var(--primary-accent); margin-top: 0; margin-bottom: 30px; letter-spacing: 3px; }
     #choice-buttons { display: flex; flex-direction: column; gap: 20px; width: 100%; }
-    .choice-btn { 
-        font-family: 'Rajdhani', sans-serif; 
-        font-weight: 700; 
-        padding: 20px 35px; 
-        cursor: pointer; 
-        font-size: 1.3em; 
-        text-transform: uppercase; 
-        letter-spacing: 1px; 
-        background: var(--primary-accent); 
-        color: var(--text-dark); 
-        border: none; 
-        transition: all 0.2s ease-out; 
-    }
+    .choice-btn { font-family: 'Rajdhani', sans-serif; font-weight: 700; padding: 20px 35px; cursor: pointer; font-size: 1.3em; text-transform: uppercase; letter-spacing: 1px; background: var(--primary-accent); color: var(--text-dark); border: none; transition: all 0.2s ease-out; }
     .choice-btn:hover { background: white; color: black; box-shadow: 0 0 20px white; }
 
     .choice-btn-vip { background: linear-gradient(45deg, var(--glitch-red), var(--cyber-magenta)); color: white; border: 2px solid var(--cyber-magenta); animation: pulse-vip 2s infinite; }
     .choice-btn-vip:hover { animation-play-state: paused; box-shadow: 0 0 25px var(--cyber-magenta); }
     @keyframes pulse-vip { 0% { box-shadow: 0 0 5px var(--cyber-magenta); } 50% { box-shadow: 0 0 20px var(--glitch-red); } 100% { box-shadow: 0 0 5px var(--cyber-magenta); } }
 
-    .choice-btn-aquarius {
-        background: var(--gold-gradient);
-        color: black;
-        border: 2px solid #ffd700;
-        animation: pulse-aquarius 3s infinite;
-    }
-    .choice-btn-aquarius:hover {
-        animation-play-state: paused;
-        box-shadow: 0 0 30px #ffd700;
-        color: black;
-    }
-    @keyframes pulse-aquarius {
-        0% { box-shadow: 0 0 7px #fca311; transform: scale(1); }
-        50% { box-shadow: 0 0 25px #ffd700; transform: scale(1.02); }
-        100% { box-shadow: 0 0 7px #fca311; transform: scale(1); }
-    }
+    .choice-btn-aquarius { background: var(--gold-gradient); color: black; border: 2px solid #ffd700; animation: pulse-aquarius 3s infinite; }
+    .choice-btn-aquarius:hover { animation-play-state: paused; box-shadow: 0 0 30px #ffd700; color: black; }
+    @keyframes pulse-aquarius { 0% { box-shadow: 0 0 7px #fca311; transform: scale(1); } 50% { box-shadow: 0 0 25px #ffd700; transform: scale(1.02); } 100% { box-shadow: 0 0 7px #fca311; transform: scale(1); } }
     
     #loginScreen { opacity: 0; visibility: hidden; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10001; text-align: center; padding: 20px; box-sizing: border-box; transition: opacity 1s ease-in-out, visibility 1s ease-in-out; }
     #loginScreen.visible { opacity: 1; visibility: visible; }
@@ -154,27 +204,9 @@
     .custom-option:hover { background: var(--primary-accent); color: var(--text-dark); }
     .custom-option.selected { background: var(--primary-accent); color: var(--text-dark); font-weight: 700;}
 
-    #mode-loading-container {
-        width: 90%;
-        max-width: 380px;
-        height: 8px;
-        border: 1px solid var(--border-color);
-        margin-top: 15px;
-        padding: 2px;
-        opacity: 0;
-        transition: opacity 0.3s;
-        box-sizing: border-box;
-    }
-    #mode-loading-container.visible {
-        opacity: 1;
-    }
-    #mode-loading-bar {
-        width: 0%;
-        height: 100%;
-        background-color: var(--primary-accent);
-        box-shadow: 0 0 10px var(--primary-accent);
-        transition: width 1.5s ease-out, background-color 0.5s, box-shadow 0.5s;
-    }
+    #mode-loading-container { width: 90%; max-width: 380px; height: 8px; border: 1px solid var(--border-color); margin-top: 15px; padding: 2px; opacity: 0; transition: opacity 0.3s; box-sizing: border-box; }
+    #mode-loading-container.visible { opacity: 1; }
+    #mode-loading-bar { width: 0%; height: 100%; background-color: var(--primary-accent); box-shadow: 0 0 10px var(--primary-accent); transition: width 1.5s ease-out, background-color 0.5s, box-shadow 0.5s; }
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 10, 23, 0.8); backdrop-filter: blur(8px); z-index: 20000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
     .modal-overlay.visible { opacity: 1; visibility: visible; }
@@ -203,9 +235,7 @@
     #login-footer a { color: var(--cyber-cyan); text-decoration: none; font-weight: 700; }
     #login-footer p { margin: 5px 0; }
     
-    #app { 
-        z-index: 5; width: 100%; box-sizing: border-box; position: relative; height: 100%; overflow-y: auto; overflow-x: hidden; 
-        background-color: var(--bg-dark);
+    #app { z-index: 5; width: 100%; box-sizing: border-box; position: relative; height: 100%; overflow-y: auto; overflow-x: hidden; background-color: var(--bg-dark);
         background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80"><path fill="%23051428" fill-opacity="0.4" d="M0 0h80v80H0z"/><path fill-opacity="0.3" stroke="%2300d1ff" stroke-width="0.5" d="M0 39.5h80M39.5 0v80M28 20l-12-8v16l12 8 12-8v-16l-12-8z m24 0l12 8v16l-12 8-12-8v-16l12-8z m-12 24l-12-8v16l12 8 12-8v-16l-12-8z m24 0l12 8v16l-12 8-12-8v-16l12-8zM28 60l-12-8v16l12 8 12-8v-16l-12-8z m24 0l12 8v16l-12 8-12-8v-16l12-8z m-12 24l-12-8v16l12 8 12-8v-16l-12-8z m24 0l12 8v16l-12 8-12-8v-16l12-8z"/></svg>');
         animation: background-pan 30s linear infinite;
     }
@@ -259,19 +289,9 @@
     .ai-avatar-wrapper.analyzing .core-ring { stroke-dasharray: 10 5; animation: dash-flow 1s linear infinite; }
     @keyframes dash-flow { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 15; } }
     
-    /* ALERT MODE STYLES */
-    @keyframes pulse-alert {
-        0% { transform: scale(1); filter: drop-shadow(0 0 15px var(--primary-yellow)); }
-        50% { transform: scale(1.05); filter: drop-shadow(0 0 35px var(--primary-yellow)); }
-        100% { transform: scale(1); filter: drop-shadow(0 0 15px var(--primary-yellow)); }
-    }
-    .ai-avatar-wrapper.alert-mode #ai-core-svg {
-        animation: pulse-alert 1s infinite;
-    }
-    .ai-avatar-wrapper.alert-mode .core-element {
-        stroke: var(--primary-yellow);
-        fill: var(--primary-yellow);
-    }
+    @keyframes pulse-alert { 0% { transform: scale(1); filter: drop-shadow(0 0 15px var(--primary-yellow)); } 50% { transform: scale(1.05); filter: drop-shadow(0 0 35px var(--primary-yellow)); } 100% { transform: scale(1); filter: drop-shadow(0 0 15px var(--primary-yellow)); } }
+    .ai-avatar-wrapper.alert-mode #ai-core-svg { animation: pulse-alert 1s infinite; }
+    .ai-avatar-wrapper.alert-mode .core-element { stroke: var(--primary-yellow); fill: var(--primary-yellow); }
     
     #ai-status-panel { position:relative; z-index: 5; max-width: 900px; margin: 25px auto; padding: 15px 20px; font-size: 1.1em; }
     #ai-log-text { color: var(--cyber-cyan); font-weight: 500; }
@@ -291,40 +311,10 @@
     .table-group { flex-grow: 2; }
     .table-input-wrapper { display: flex; align-items: center; gap: 15px; }
     
-    #pattern-prediction-container {
-        flex-grow: 1;
-        background: var(--input-bg);
-        border: 1px solid var(--border-color);
-        padding: 4px;
-        height: 49px;
-        box-sizing: border-box;
-        transition: opacity 0.3s;
-    }
-    #pattern-prediction-container.hidden {
-        opacity: 0;
-        pointer-events: none;
-    }
-    .progress-bar-outer {
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-    }
-    .progress-bar-inner {
-        width: 0%;
-        height: 100%;
-        background: linear-gradient(90deg, var(--glitch-red), var(--cyber-magenta));
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 700;
-        font-size: 1em;
-        transition: width 0.5s ease-out;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        padding: 0 10px;
-    }
+    #pattern-prediction-container { flex-grow: 1; background: var(--input-bg); border: 1px solid var(--border-color); padding: 4px; height: 49px; box-sizing: border-box; transition: opacity 0.3s; }
+    #pattern-prediction-container.hidden { opacity: 0; pointer-events: none; }
+    .progress-bar-outer { width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+    .progress-bar-inner { width: 0%; height: 100%; background: linear-gradient(90deg, var(--glitch-red), var(--cyber-magenta)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1em; transition: width 0.5s ease-out; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 10px; }
 
 
     #prediction-lock { position: relative; overflow: hidden; border-width: 1px; min-height: 120px; display: flex; flex-direction: column; justify-content: center; margin-top: 15px; }
@@ -411,11 +401,33 @@
   <div id="scanlines-overlay"></div>
 
   <div id="boot-screen">
-    <div id="boot-log">
-        <p data-text="KHỞI TẠO LÕI A.I..."></p><p data-text="KẾT NỐI TỚI MẠNG LƯỚI NIGHTCITY..."></p><p data-text="VƯỢT TƯỜNG LỬA BĂNG..."></p><p data-text="GIẢI MÃ LUỒNG DỮ LIỆU..."></p><p data-text="TẢI GIAO THỨC PHÂN TÍCH BACCARAT..."></p><p data-text="HỆ THỐNG SẴN SÀNG."></p>
+    <div class="boot-grid-overlay"></div>
+    <div class="boot-corner top-left"></div>
+    <div class="boot-corner top-right"></div>
+    <div class="boot-corner bottom-left"></div>
+    <div class="boot-corner bottom-right"></div>
+    
+    <div id="boot-center-logo-container">
+        <img id="boot-logo" src="https://i.ibb.co/ynX669hj/LOGO.png" alt="Boot Logo"/>
     </div>
-    <div id="progress-bar-container" class="clip-path-large"><div id="progress-bar" class="clip-path-large"></div></div>
-    <div id="progress-text">0%</div>
+
+    <div id="boot-text-left" class="boot-text-panel">
+        <p>// SYS_STATUS: <span class="text-success">OK</span></p>
+        <p>// PWR_LEVEL: <span class="text-success">100%</span></p>
+        <p>// MEM_CHECK: <span class="text-success">PASSED</span></p>
+    </div>
+    <div id="boot-text-right" class="boot-text-panel">
+        <p>A.I. KERNEL: <span id="kernel-status">LOADING...</span></p>
+        <p>NEURAL LINK: <span id="link-status">PENDING...</span></p>
+        <p>ENCRYPTION: <span id="encrypt-status">INIT...</span></p>
+    </div>
+    
+    <div class="boot-scanline"></div>
+
+    <div id="boot-progress-container">
+        <div id="boot-status-text">INITIALIZING INTERFACE...</div>
+        <div id="boot-progress-bar-new"></div>
+    </div>
   </div>
 
   <canvas id="matrix-canvas"></canvas>
@@ -498,7 +510,7 @@
         <div id="ai-avatar" class="ai-avatar-wrapper clip-path-large">
             <svg id="ai-core-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <defs>
-                    <filter id="glow-filter">
+                    <filter id="glow-filter-main">
                         <feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
                         <feMerge>
                             <feMergeNode in="coloredBlur"/>
@@ -520,7 +532,7 @@
                     <path class="core-element core-ring" d="M100 157.5A57.5 57.5 0 0 1 42.5 100" stroke="var(--primary-accent)" stroke-width="1.5"/>
                     <path class="core-element core-ring" d="M59 59A57.5 57.5 0 0 1 100 42.5" stroke="var(--primary-accent)" stroke-width="1.5"/>
                 </g>
-                <g id="core-pulse-group" filter="url(#glow-filter)">
+                <g id="core-pulse-group" filter="url(#glow-filter-main)">
                     <circle class="core-element" cx="100" cy="100" r="25" stroke="var(--primary-accent)" stroke-width="2"/>
                     <circle class="core-element" cx="100" cy="100" r="15" fill="var(--primary-accent)"/>
                 </g>
@@ -621,13 +633,16 @@
     let accounts, tablesByLobby, historyLog, sessionStats, statsChart, dataStreamInterval, dom, matrixInterval, currentUser, liveUpdateInterval;
     let isLiveModeActive = false;
 
+    // ----- CÁC HÀM TIỆN ÍCH -----
     function playSound(soundName) {
         if (dom && dom.sound[soundName] && dom.settings.sfxToggle.checked) {
             const sound = dom.sound[soundName];
             if(sound) { sound.currentTime = 0; sound.play().catch(e => {}); }
         }
     }
+    const sleep = ms => new Promise(res => setTimeout(res, ms));
 
+    // ----- CÁC HÀM GIAO DIỆN CHÍNH -----
     function toggleSettings() { 
         playSound('click'); 
         dom.settings.panel.classList.toggle('visible'); 
@@ -662,7 +677,7 @@
                     dom.settings.liveModeToggle.checked = false;
                     return;
                 };
-                if (!dom.predictButton.disabled) { // Only update if not currently analyzing
+                if (!dom.predictButton.disabled) { 
                     animateText(dom.ai.logText, "// ĐANG NHẬN DỮ LIỆU MỚI TỪ TERMINAL... //");
                     setTimeout(() => updateHistoryInBackground(true), 1000);
                 }
@@ -838,32 +853,50 @@
         if(matrixInterval) clearInterval(matrixInterval);
         matrixInterval = setInterval(draw, 33);
     }
+    
+    // INTRO MỚI: Giao diện HUD
     async function startBootSequence() {
-        const logLines = Array.from(document.querySelectorAll('#boot-log p'));
-        const progressBar = document.getElementById('progress-bar');
-        const progressText = document.getElementById('progress-text');
-        const totalDuration = 3000;
-        let progress = 0;
-        const updateProgress = () => {
-            progress += 1;
-            const percentage = Math.min(100, progress);
-            progressBar.style.width = `${percentage}%`;
-            progressText.textContent = `${Math.floor(percentage)}%`;
-            if (progress < 100) { setTimeout(updateProgress, (totalDuration - 1000) / 100); }
+        playSound('alert'); // Play a boot-up sound
+        const statusText = dom.bootStatusText;
+
+        // Update side panels text
+        setTimeout(() => {
+            document.getElementById('kernel-status').textContent = 'ONLINE';
+            document.getElementById('kernel-status').classList.add('text-success');
+        }, 2500);
+        setTimeout(() => {
+            document.getElementById('link-status').textContent = 'SECURE';
+            document.getElementById('link-status').classList.add('text-success');
+        }, 3000);
+         setTimeout(() => {
+            document.getElementById('encrypt-status').textContent = 'ACTIVE';
+            document.getElementById('encrypt-status').classList.add('text-success');
+        }, 3500);
+
+        // Typewriter effect for the final status
+        const typeWriter = async (text) => {
+            statusText.textContent = '';
+            for (let i = 0; i < text.length; i++) {
+                statusText.textContent += text.charAt(i);
+                playSound('typing');
+                await sleep(50);
+            }
         };
-        updateProgress();
-        for (let i = 0; i < logLines.length; i++) {
-            await new Promise(resolve => setTimeout(resolve, 400));
-            logLines[i].textContent = logLines[i].dataset.text;
-            logLines[i].classList.add('visible');
-            playSound('typing');
-        }
-        await new Promise(resolve => setTimeout(resolve, 500));
-        dom.bootScreen.style.opacity = '0';
-        dom.choiceScreen.classList.remove('hidden');
-        startMatrixRain();
-        setTimeout(() => dom.bootScreen.classList.add('hidden'), 1000);
+
+        setTimeout(async () => {
+            await typeWriter("HỆ THỐNG A.I. SẴN SÀNG");
+        }, 4000);
+
+        // Final transition
+        setTimeout(() => {
+            dom.bootScreen.classList.add('finished');
+            dom.choiceScreen.classList.remove('hidden');
+            startMatrixRain();
+            setTimeout(() => dom.bootScreen.classList.add('hidden'), 1500);
+        }, 5500);
     }
+
+
     async function predictResult() {
         if (!dom.lobbySelect.value || !dom.tableSelect.value) {
             alert("LỖI HỆ THỐNG: CHƯA CHỌN LUỒNG DỮ LIỆU."); return;
@@ -884,9 +917,7 @@
         await animateText(dom.ai.logText, `KÍCH HOẠT A.I. CHẾ ĐỘ ${currentUser.mode.toUpperCase()}...`);
         await animateText(dom.ai.logText, 'PHÂN TÍCH LUỒNG DỮ LIỆU LỊCH SỬ...');
         
-        // This is where you would have different logic for 'rice', 'urgent', 'satellite'
-        // For now, we use a generic prediction logic
-        const primary = analyzePrimaryTrend(historyLog); 
+        const primary = analyzePrimaryTrend(historyLog, currentUser.mode); 
         
         if (primary.prediction === 'BỎ QUA') {
             await animateText(dom.ai.predictionText, 'BỎ QUA VÁN NÀY', true);
@@ -912,8 +943,7 @@
         }
     }
 
-    function analyzePrimaryTrend(history) {
-        // Generic analysis, you can customize this based on currentUser.mode if you want
+    function analyzePrimaryTrend(history, mode) {
         const last_n = history.slice(-10).filter(r => r !== 'tie');
         if (last_n.length < 3) return { prediction: 'NHÀ CÁI', confidence: '65.2' };
         
@@ -1117,7 +1147,6 @@
         loadingBar.style.width = '0%';
         loadingContainer.classList.add('visible');
 
-        // Delay to allow the container to become visible before transitioning
         setTimeout(() => {
             loadingBar.style.backgroundColor = color;
             loadingBar.style.boxShadow = `0 0 10px ${color}`;
@@ -1127,11 +1156,10 @@
         setTimeout(() => {
             loadingContainer.classList.remove('visible');
             dom.loginButton.disabled = false;
-            // Reset bar after transition is done
             setTimeout(() => {
                  loadingBar.style.width = '0%';
             }, 500)
-        }, 1600); // 100ms delay + 1500ms transition
+        }, 1600);
     }
 
 
@@ -1156,6 +1184,7 @@
 
         dom = { sound: {}, settings: {}, ai: {}, modal: {} }; 
         dom.bootScreen = document.getElementById('boot-screen');
+        dom.bootStatusText = document.getElementById('boot-status-text');
         dom.choiceScreen = document.getElementById('choiceScreen');
         dom.loginScreen = document.getElementById('loginScreen');
         dom.appScreen = document.getElementById('app');
@@ -1249,7 +1278,6 @@
 
         customOptions.forEach(option => {
             option.addEventListener('click', () => {
-                // Visual update
                 customOptions.forEach(opt => opt.classList.remove('selected'));
                 option.classList.add('selected');
                 selectTrigger.textContent = option.textContent;
@@ -1257,14 +1285,12 @@
                 selectWrapper.classList.remove('open');
                 dom.modeSelect.dispatchEvent(new Event('change'));
                 
-                // Get mode and color
                 const mode = option.dataset.value;
                 let modeColor = 'var(--primary-accent)';
                 if (mode === 'rice') modeColor = 'var(--rice-mode-color)';
                 if (mode === 'urgent') modeColor = 'var(--urgent-mode-color)';
                 if (mode === 'satellite') modeColor = 'var(--satellite-mode-color)';
                 
-                // Trigger loading bar animation
                 switchMode(mode, modeColor);
                 
                  if (mode === 'urgent') {
