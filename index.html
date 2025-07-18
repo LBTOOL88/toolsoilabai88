@@ -8,18 +8,18 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --primary-accent: #00d1ff; /* MÀU XANH CÔNG NGHỆ MỚI */
+      --primary-accent: #00d1ff;
       --primary-yellow: #fcee0a;
-      --cyber-cyan: #00d1ff; /* Đồng bộ màu cyan */
+      --cyber-cyan: #00d1ff;
       --cyber-magenta: #ff00ff;
       --glitch-red: #ff3c3c;
       --gold-gradient: linear-gradient(45deg, #ffd700, #fca311);
-      --bg-dark: #020a17; /* Nền tối hơn, sâu hơn */
-      --container-bg: rgba(5, 20, 40, 0.85); /* Nền container xanh đậm */
+      --bg-dark: #020a17;
+      --container-bg: rgba(5, 20, 40, 0.85);
       --input-bg: rgba(2, 10, 23, 0.9);
       --text-light: #e0e0e0;
       --text-dark: #0a0a14;
-      --border-color: rgba(0, 209, 255, 0.3); /* Viền màu xanh mới */
+      --border-color: rgba(0, 209, 255, 0.3);
       --warning-bg: rgba(255, 60, 60, 0.1);
     }
     
@@ -210,22 +210,44 @@
     #energy-percentage { color: white; font-size: 1.2em; min-width: 45px; text-align: right; }
 
     .ai-container { position:relative; z-index: 5; text-align: center; padding: 25px 10px 0 10px; }
-    .ai-avatar-wrapper { width: 100%; max-width: 250px; margin: 0 auto; border: 1px solid var(--border-color); background: black; transition: box-shadow 0.3s; }
+    .ai-avatar-wrapper { width: 100%; max-width: 250px; margin: 0 auto; }
     
-    #ai-core-svg { width: 100%; height: auto; }
-    #core-rings { transform-origin: center; animation: rotate-rings 20s linear infinite; }
-    .core-ring:nth-child(2) { animation-direction: reverse; animation-duration: 15s; }
-    #inner-core { animation: pulse-core 3s ease-in-out infinite; }
+    #ai-core-svg { width: 100%; height: auto; transform-origin: center; }
+    .core-element { transition: all 0.5s ease-in-out; }
+    #core-rings-group { transform-origin: center; animation: rotate-rings 20s linear infinite; }
+    .outer-ring { animation-direction: reverse; animation-duration: 30s; }
+    #inner-ring-group { transform-origin: center; animation: rotate-rings 10s linear infinite; }
+    #core-pulse-group { transform-origin: center; animation: pulse-core 3s ease-in-out infinite; }
+    #circuit-group { transform-origin: center; animation: pulse-circuit 4s ease-in-out infinite alternate; }
+    
     @keyframes rotate-rings { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    @keyframes pulse-core { 0%, 100% { transform: scale(1) translateZ(0); filter: drop-shadow(0 0 5px var(--primary-accent)); } 50% { transform: scale(1.2) translateZ(0); filter: drop-shadow(0 0 15px var(--primary-accent)); } }
-    .ai-avatar-wrapper.analyzing #core-rings { animation-duration: 2s; }
-    .ai-avatar-wrapper.analyzing #inner-core { animation-duration: 0.5s; }
+    @keyframes pulse-core { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } }
+    @keyframes pulse-circuit { from { opacity: 0.3; } to { opacity: 0.8; } }
+
+    .ai-avatar-wrapper.analyzing #core-rings-group { animation-duration: 2s; }
+    .ai-avatar-wrapper.analyzing #inner-ring-group { animation-duration: 1.5s; }
+    .ai-avatar-wrapper.analyzing #core-pulse-group { animation-duration: 0.5s; }
     .ai-avatar-wrapper.analyzing .core-ring { stroke-dasharray: 10 5; animation: dash-flow 1s linear infinite; }
     @keyframes dash-flow { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 15; } }
+    
+    /* ALERT MODE STYLES */
+    @keyframes pulse-alert {
+        0% { transform: scale(1); filter: drop-shadow(0 0 15px var(--primary-yellow)); }
+        50% { transform: scale(1.05); filter: drop-shadow(0 0 35px var(--primary-yellow)); }
+        100% { transform: scale(1); filter: drop-shadow(0 0 15px var(--primary-yellow)); }
+    }
+    .ai-avatar-wrapper.alert-mode #ai-core-svg {
+        animation: pulse-alert 1s infinite;
+    }
+    .ai-avatar-wrapper.alert-mode .core-element {
+        stroke: var(--primary-yellow);
+        fill: var(--primary-yellow);
+    }
     
     #ai-status-panel { position:relative; z-index: 5; max-width: 900px; margin: 25px auto; padding: 15px 20px; font-size: 1.1em; }
     #ai-log-text { color: var(--cyber-cyan); font-weight: 500; }
     #ai-log-text .highlight { color: var(--primary-yellow); font-weight: 700; }
+    #ai-log-text.alert-text { animation: blink-warning 1s infinite; }
     
     .main, .data-block, #ai-status-panel { background: rgba(15, 35, 60, 0.5); backdrop-filter: blur(10px) saturate(120%); border: 1px solid rgba(0, 209, 255, 0.5); box-shadow: inset 0 0 20px rgba(0, 209, 255, 0.2), 0 0 30px rgba(0, 209, 255, 0.3); transition: all 0.4s ease; }
     .main:hover, .data-block:hover, #ai-status-panel:hover { border-color: rgba(0, 209, 255, 1); transform: translateY(-5px) scale(1.02); box-shadow: inset 0 0 25px rgba(0, 209, 255, 0.4), 0 0 40px rgba(0, 209, 255, 0.5); }
@@ -247,6 +269,7 @@
         padding: 4px;
         height: 49px;
         box-sizing: border-box;
+        transition: opacity 0.3s;
     }
     #pattern-prediction-container.hidden {
         opacity: 0;
@@ -441,7 +464,7 @@
     </header>
     <div class="ai-container anim-slide-in" style="animation-delay: 0.4s;">
         <div id="ai-avatar" class="ai-avatar-wrapper clip-path-large">
-            <svg id="ai-core-svg" viewBox="0 0 200 200">
+            <svg id="ai-core-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <filter id="glow-filter">
                         <feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
@@ -451,12 +474,24 @@
                         </feMerge>
                     </filter>
                 </defs>
-                <g id="core-rings" filter="url(#glow-filter)">
-                    <path class="core-ring" d="M 100,20 A 80 80 0 1 1 99.9,20" stroke="var(--primary-accent)" stroke-width="3" fill="none" />
-                    <path class="core-ring" d="M 100,40 A 60 60 0 1 1 99.9,40" stroke="var(--primary-accent)" stroke-width="2" fill="none" />
-                    <path class="core-ring" d="M 100,60 A 40 40 0 1 1 99.9,60" stroke="var(--primary-accent)" stroke-width="1.5" fill="none" />
+                <g id="circuit-group" class="core-element" stroke="var(--primary-accent)" stroke-width="0.5">
+                    <path d="M100 20V0"/><path d="M100 180V200"/><path d="M20 100H0"/><path d="M180 100H200"/>
+                    <path d="M156.57 43.43L166.43 33.57"/><path d="M43.43 156.57L33.57 166.43"/>
+                    <path d="M156.57 156.57L166.43 166.43"/><path d="M43.43 43.43L33.57 33.57"/>
                 </g>
-                <circle id="inner-core" cx="100" cy="100" r="15" fill="var(--primary-accent)" />
+                <g id="core-rings-group">
+                    <circle class="core-element core-ring" cx="100" cy="100" r="80" stroke="var(--primary-accent)" stroke-width="1"/>
+                    <circle class="core-element core-ring outer-ring" cx="100" cy="100" r="60" stroke="var(--primary-accent)" stroke-width="1.5" stroke-dasharray="10 5"/>
+                </g>
+                <g id="inner-ring-group">
+                    <path class="core-element core-ring" d="M100 42.5A57.5 57.5 0 0 1 157.5 100" stroke="var(--primary-accent)" stroke-width="1.5"/>
+                    <path class="core-element core-ring" d="M100 157.5A57.5 57.5 0 0 1 42.5 100" stroke="var(--primary-accent)" stroke-width="1.5"/>
+                    <path class="core-element core-ring" d="M59 59A57.5 57.5 0 0 1 100 42.5" stroke="var(--primary-accent)" stroke-width="1.5"/>
+                </g>
+                <g id="core-pulse-group" filter="url(#glow-filter)">
+                    <circle class="core-element" cx="100" cy="100" r="25" stroke="var(--primary-accent)" stroke-width="2"/>
+                    <circle class="core-element" cx="100" cy="100" r="15" fill="var(--primary-accent)"/>
+                </g>
             </svg>
         </div>
     </div>
@@ -549,6 +584,7 @@
   <audio id="sfx-hover" src="sfx-hover.mp3"></audio>
   <audio id="sfx-typing" src="sfx-typing.mp3"></audio>
   <audio id="sfx-deal" src="deal.mp3"></audio>
+  <audio id="sfx-alert" src="sfx-alert.mp3"></audio>
   <script>
     let accounts, tablesByLobby, historyLog, sessionStats, statsChart, dataStreamInterval, dom, matrixInterval, currentUser, liveUpdateInterval;
     let isLiveModeActive = false;
@@ -594,8 +630,10 @@
                     dom.settings.liveModeToggle.checked = false;
                     return;
                 };
-                animateText(dom.ai.logText, "// ĐANG NHẬN DỮ LIỆU MỚI TỪ TERMINAL... //");
-                setTimeout(() => updateHistoryInBackground(true), 1000);
+                if (!dom.predictButton.disabled) { // Only update if not currently analyzing
+                    animateText(dom.ai.logText, "// ĐANG NHẬN DỮ LIỆU MỚI TỪ TERMINAL... //");
+                    setTimeout(() => updateHistoryInBackground(true), 1000);
+                }
             }, 30000);
         } else {
             clearInterval(liveUpdateInterval);
@@ -805,7 +843,6 @@
         }
 
         currentUser.energy -= 5;
-        accounts[currentUser.code].energy = currentUser.energy;
         updateEnergyBar(currentUser.energy);
 
         dom.predictButton.disabled = true;
@@ -832,12 +869,12 @@
         
         stopDataStream();
         dom.analysisDeck.classList.add('visible');
-        
+        dom.ai.avatar.classList.remove('analyzing');
+
         if (!isLiveModeActive) {
             updateHistoryInBackground(false);
         } else {
             dom.predictButton.disabled = false;
-            dom.ai.avatar.classList.remove('analyzing');
         }
     }
 
@@ -959,6 +996,19 @@
         
         if (bestPattern.probability >= 95) {
             bestPattern.name = "CẦU TẤT TAY 🔥";
+            // TRIGGER ALERT
+            if (isLiveModeActive && !dom.ai.avatar.classList.contains('alert-mode')) {
+                playSound('alert');
+                dom.ai.avatar.classList.add('alert-mode');
+                dom.ai.logText.textContent = `>> CẢNH BÁO: TÍN HIỆU ${bestPattern.name} ĐƯỢC PHÁT HIỆN! <<`;
+                dom.ai.logText.classList.add('alert-text');
+            }
+        } else {
+            // REMOVE ALERT
+            if (dom.ai.avatar.classList.contains('alert-mode')) {
+                dom.ai.avatar.classList.remove('alert-mode');
+                dom.ai.logText.classList.remove('alert-text');
+            }
         }
 
         if (bestPattern.probability >= 50) {
@@ -1015,15 +1065,14 @@
              const winnerMap = { player: 'Player', banker: 'Banker', tie: 'Hòa' };
             animateText(dom.ai.logText, `KẾT QUẢ VÁN TRƯỚE: ${winnerMap[winner].toUpperCase()}. // CHẾ ĐỘ CHỜ //`);
             dom.predictButton.disabled = false;
-            dom.ai.avatar.classList.remove('analyzing');
-        } else {
+        } else if (!dom.ai.avatar.classList.contains('alert-mode')) {
              animateText(dom.ai.logText, `// DỮ LIỆU ĐÃ CẬP NHẬT. CHỜ LỆNH PHÂN TÍCH TIẾP THEO... //`);
         }
     }
     
     function populateTables() {
         const l = dom.lobbySelect.value;
-        dom.tableSelect.innerHTML = '<option value="">-- CHỜ CHỌN KHU VỰC --</option>';
+        dom.tableSelect.innerHTML = '<option value="">-- CHỌN KHU VỰC --</option>';
         if (l && tablesByLobby[l]) {
             tablesByLobby[l].forEach(t => {
                 const o = document.createElement('option');
@@ -1043,7 +1092,7 @@
         historyLog = [];
         sessionStats = { player: 0, banker: 0, tie: 0, total: 0 };
         const outcomes = ['player', 'banker'];
-        const numPreviousHands = Math.floor(Math.random() * 20) + 10; // 10 to 29 previous hands
+        const numPreviousHands = Math.floor(Math.random() * 20) + 10;
         for(let i=0; i < numPreviousHands; i++) {
             const winner = outcomes[Math.floor(Math.random() * outcomes.length)];
              historyLog.push(winner);
@@ -1060,7 +1109,6 @@
         if (dom.tableSelect.value) {
             simulateNewTableHistory();
         } else {
-            // Clear history if no table is selected
             historyLog = [];
             sessionStats = { player: 0, banker: 0, tie: 0, total: 0 };
             updateStatsChart();
@@ -1102,6 +1150,7 @@
         dom.sound.hover = document.getElementById('sfx-hover');
         dom.sound.typing = document.getElementById('sfx-typing');
         dom.sound.deal = document.getElementById('sfx-deal');
+        dom.sound.alert = document.getElementById('sfx-alert');
         dom.settings.panel = document.getElementById('settings-panel');
         dom.settings.musicToggle = document.getElementById('music-toggle');
         dom.settings.sfxToggle = document.getElementById('sfx-toggle');
@@ -1193,6 +1242,7 @@
 
         initializeChart();
         dom.lobbySelect.addEventListener('change', () => { playSound('click'); populateTables(); });
+        dom.tableSelect.addEventListener('change', handleTableChange);
         
         startBootSequence();
     });
