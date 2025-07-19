@@ -6,6 +6,7 @@
   <title>LONG BẢO TOOL A.I 2026</title>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     :root {
       --primary-accent: #00d1ff;
@@ -53,6 +54,7 @@
     #boot-screen.finished {
         opacity: 0;
         filter: blur(10px) brightness(2);
+        pointer-events: none;
     }
 
     .boot-grid-overlay {
@@ -153,27 +155,174 @@
     }
     /* --- KẾT THÚC CSS INTRO MỚI --- */
 
-    #choiceScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10001; text-align: center; padding: 20px; box-sizing: border-box; }
-    #choice-content { 
-        z-index: 1; background: var(--container-bg); backdrop-filter: blur(8px); padding: 40px; border: 1px solid var(--border-color); 
-        width: 100%; max-width: 600px; display: flex; flex-direction: column; align-items: center;
-        box-shadow: 0 0 35px rgba(0, 209, 255, 0.3), inset 0 0 25px rgba(0, 209, 255, 0.2); transition: all 0.3s ease;
+    /* --- GIAO DIỆN CHỌN GIAO THỨC 3D MỚI --- */
+    #choice-3d-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 10000;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+        pointer-events: none; /* Cho phép click xuyên qua canvas */
     }
-    #choice-content:hover { border-color: var(--primary-accent); box-shadow: 0 0 50px rgba(0, 209, 255, 0.5), inset 0 0 30px rgba(0, 209, 255, 0.3); }
-    #choice-subtitle { font-size: 1.5em; font-weight: 500; color: var(--text-light); margin-top: 0; margin-bottom: 10px; letter-spacing: 4px; text-transform: uppercase; }
-    #choice-content h2 { font-size: 2.8em; font-weight: 700; color: var(--primary-accent); text-shadow: 0 0 8px var(--primary-accent), 0 0 15px var(--primary-accent); margin-top: 0; margin-bottom: 30px; letter-spacing: 3px; }
-    #choice-buttons { display: flex; flex-direction: column; gap: 20px; width: 100%; }
-    .choice-btn { font-family: 'Rajdhani', sans-serif; font-weight: 700; padding: 20px 35px; cursor: pointer; font-size: 1.3em; text-transform: uppercase; letter-spacing: 1px; background: var(--primary-accent); color: var(--text-dark); border: none; transition: all 0.2s ease-out; }
-    .choice-btn:hover { background: white; color: black; box-shadow: 0 0 20px white; }
+    #choice-3d-canvas.visible {
+        opacity: 1;
+    }
 
-    .choice-btn-vip { background: linear-gradient(45deg, var(--glitch-red), var(--cyber-magenta)); color: white; border: 2px solid var(--cyber-magenta); animation: pulse-vip 2s infinite; }
-    .choice-btn-vip:hover { animation-play-state: paused; box-shadow: 0 0 25px var(--cyber-magenta); }
+    #choiceScreen { 
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+        background: transparent; 
+        display: flex; flex-direction: column; justify-content: center; align-items: center; 
+        z-index: 10001; text-align: center; padding: 20px; box-sizing: border-box; 
+        opacity: 0; visibility: hidden;
+        transition: opacity 1s 0.5s, visibility 1s 0.5s;
+    }
+    #choiceScreen.visible {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    #choice-header {
+      margin-bottom: 4rem;
+      text-align: center;
+    }
+    #choice-header h3 {
+      font-size: 1.5em; font-weight: 500; color: var(--text-light); 
+      margin: 0 0 10px 0; letter-spacing: 4px; text-transform: uppercase;
+    }
+    #choice-header h2 {
+      font-size: 2.8em; font-weight: 700; color: var(--primary-accent); 
+      text-shadow: 0 0 8px var(--primary-accent), 0 0 15px var(--primary-accent); 
+      margin: 0; letter-spacing: 3px;
+    }
+
+    #protocol-container {
+        display: flex;
+        justify-content: center;
+        align-items: stretch; /* Làm cho các card cao bằng nhau */
+        gap: 30px;
+        width: 100%;
+        max-width: 1200px;
+        perspective: 2000px;
+    }
+
+    .protocol-card {
+        background: var(--container-bg);
+        border: 1px solid var(--border-color);
+        padding: 20px;
+        width: 300px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        transform-style: preserve-3d;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 0 25px rgba(0, 209, 255, 0.2), inset 0 0 15px rgba(0, 209, 255, 0.1);
+    }
+    .protocol-card:hover {
+        transform: translateY(-20px) rotateX(5deg) scale(1.05);
+        border-color: var(--primary-accent);
+        box-shadow: 0 30px 50px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 209, 255, 0.5);
+    }
+
+    .protocol-card .model-placeholder {
+        height: 180px;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .protocol-card h3 {
+        font-size: 1.6em;
+        font-weight: 700;
+        color: var(--primary-accent);
+        margin: 0 0 10px 0;
+        text-transform: uppercase;
+    }
+    .protocol-card p {
+        font-size: 1em;
+        color: var(--text-light);
+        flex-grow: 1; /* Đẩy button xuống dưới */
+        margin: 0 0 20px 0;
+        line-height: 1.4;
+    }
+    .protocol-card .choice-btn {
+        font-family: 'Rajdhani', sans-serif; font-weight: 700; padding: 15px 30px; 
+        cursor: pointer; font-size: 1.1em; text-transform: uppercase; 
+        letter-spacing: 1px; background: var(--primary-accent); color: var(--text-dark); 
+        border: none; transition: all 0.2s ease-out; width: 100%;
+        pointer-events: all;
+    }
+    .protocol-card .choice-btn:hover {
+        background: white; color: black; box-shadow: 0 0 20px white;
+    }
+
+    /* VIP Card (YIAN A.I) */
+    .protocol-card.yian {
+        border-color: var(--cyber-magenta);
+    }
+    .protocol-card.yian h3 { color: var(--cyber-magenta); }
+    .protocol-card.yian .choice-btn {
+        background: linear-gradient(45deg, var(--glitch-red), var(--cyber-magenta));
+        color: white;
+        animation: pulse-vip 2s infinite;
+    }
     @keyframes pulse-vip { 0% { box-shadow: 0 0 5px var(--cyber-magenta); } 50% { box-shadow: 0 0 20px var(--glitch-red); } 100% { box-shadow: 0 0 5px var(--cyber-magenta); } }
-
-    .choice-btn-aquarius { background: var(--gold-gradient); color: black; border: 2px solid #ffd700; animation: pulse-aquarius 3s infinite; }
-    .choice-btn-aquarius:hover { animation-play-state: paused; box-shadow: 0 0 30px #ffd700; color: black; }
-    @keyframes pulse-aquarius { 0% { box-shadow: 0 0 7px #fca311; transform: scale(1); } 50% { box-shadow: 0 0 25px #ffd700; transform: scale(1.02); } 100% { box-shadow: 0 0 7px #fca311; transform: scale(1); } }
     
+    /* Aquarius Card (Nổi bật nhất) */
+    .protocol-card.aquarius {
+        border: 2px solid transparent;
+        background: linear-gradient(var(--bg-dark), var(--bg-dark)) padding-box,
+                    var(--gold-gradient) border-box;
+        transform: scale(1.05);
+    }
+    .protocol-card.aquarius:hover {
+        transform: translateY(-20px) rotateX(5deg) scale(1.1);
+        box-shadow: 0 30px 50px rgba(0, 0, 0, 0.6), 0 0 50px #ffd700;
+    }
+    .protocol-card.aquarius::before {
+        content: "GIAO THỨC VIP";
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--gold-gradient);
+        color: var(--text-dark);
+        padding: 5px 20px;
+        font-weight: 700;
+        font-size: 0.9em;
+        clip-path: polygon(0 0, 100% 0, 90% 100%, 10% 100%);
+    }
+    .protocol-card.aquarius h3 {
+        color: var(--primary-yellow);
+        text-shadow: 0 0 10px var(--primary-yellow);
+    }
+    .protocol-card.aquarius .choice-btn {
+        background: var(--gold-gradient);
+        color: black;
+        animation: pulse-aquarius 3s infinite;
+    }
+    @keyframes pulse-aquarius { 0% { box-shadow: 0 0 7px #fca311; } 50% { box-shadow: 0 0 25px #ffd700; } 100% { box-shadow: 0 0 7px #fca311; } }
+
+    @media (max-width: 992px) {
+        #protocol-container {
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+        }
+        .protocol-card {
+            width: 80%;
+            max-width: 400px;
+        }
+        #choice-header {
+            margin-bottom: 2rem;
+        }
+    }
+    /* --- KẾT THÚC CSS GIAO DIỆN CHỌN --- */
+
     #loginScreen { opacity: 0; visibility: hidden; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10001; text-align: center; padding: 20px; box-sizing: border-box; transition: opacity 1s ease-in-out, visibility 1s ease-in-out; }
     #loginScreen.visible { opacity: 1; visibility: visible; }
     #loginScreen.hidden-overlay { opacity: 0; visibility: hidden; pointer-events: none; }
@@ -358,9 +507,9 @@
         header { flex-direction: column; gap: 10px; padding-bottom: 10px; }
         #energy-display { order: 2; }
         #settings-button { position: absolute; top: 15px; right: 15px; order: 3; }
-        #login-content, #choice-content { width: 95%; padding: 20px;}
+        #login-content { width: 95%; padding: 20px;}
         #login-logo { width: 120px; height: 120px; }
-        #loginScreen h2, #choice-content h2 { font-size: 1.8em; margin-bottom: 15px; }
+        #loginScreen h2 { font-size: 1.8em; margin-bottom: 15px; }
         .main, .data-block, #ai-status-panel { padding: 15px; margin-bottom: 15px; transform: none !important; }
         .main:hover, .data-block:hover, #ai-status-panel:hover { transform: none !important; }
         .ai-container { padding: 15px 10px 0 10px; }
@@ -399,6 +548,7 @@
 </head>
 <body>
   <div id="scanlines-overlay"></div>
+  <canvas id="choice-3d-canvas"></canvas>
 
   <div id="boot-screen">
     <div class="boot-grid-overlay"></div>
@@ -432,14 +582,29 @@
 
   <canvas id="matrix-canvas"></canvas>
 
-  <div id="choiceScreen" class="hidden">
-    <div id="choice-content" class="clip-path-large assemble">
-        <h3 id="choice-subtitle" class="assemble-child" style="animation-delay: 0.1s;">LONG BẢO</h3>
+  <div id="choiceScreen">
+    <div id="choice-header" class="assemble">
+        <h3 class="assemble-child" style="animation-delay: 0.1s;">LONG BẢO</h3>
         <h2 class="assemble-child" style="animation-delay: 0.2s;">CHỌN GIAO THỨC</h2>
-        <div id="choice-buttons" class="assemble-child" style="animation-delay: 0.4s;">
-            <button id="goto-ai-tool" class="choice-btn clip-path-button" onmouseover="playSound('hover')" onmousedown="playSound('click')">TOOL A.I THẾ HỆ 3</button>
-            <button id="goto-scan-tool" class="choice-btn choice-btn-vip clip-path-button" onmouseover="playSound('hover')" onmousedown="playSound('click')">TOOL QUÉT LÁ BÀI TRỰC TUYẾN</button>
-            <button id="goto-aquarius-tool" class="choice-btn choice-btn-aquarius clip-path-button" onmouseover="playSound('hover')" onmousedown="playSound('click')">AQUARIUS A.I</button>
+    </div>
+    <div id="protocol-container" class="assemble-child" style="animation-delay: 0.4s;">
+        <div class="protocol-card clip-path-large" id="card-ai-tool">
+            <div class="model-placeholder"></div>
+            <h3>TOOL A.I THẾ HỆ 3</h3>
+            <p>Sử dụng thuật toán phân tích dữ liệu nâng cao để đưa ra dự đoán dựa trên các mẫu lịch sử.</p>
+            <button id="goto-ai-tool" class="choice-btn clip-path-button" onmouseover="playSound('hover')" onmousedown="playSound('click')">Khởi chạy</button>
+        </div>
+        <div class="protocol-card yian clip-path-large" id="card-scan-tool">
+            <div class="model-placeholder"></div>
+            <h3>YIAN A.I QUÉT LÁ BÀI</h3>
+            <p>Công nghệ quét và nhận dạng lá bài trong thời gian thực, yêu cầu cấu hình và vốn mạnh.</p>
+            <button id="goto-scan-tool" class="choice-btn clip-path-button" onmouseover="playSound('hover')" onmousedown="playSound('click')">Khởi chạy</button>
+        </div>
+        <div class="protocol-card aquarius clip-path-large" id="card-aquarius-tool">
+            <div class="model-placeholder"></div>
+            <h3>AQUARIUS A.I</h3>
+            <p>Giao thức thử nghiệm Beta, ứng dụng nguyên lý lượng tử để tìm kiếm các khả năng tiềm ẩn.</p>
+            <button id="goto-aquarius-tool" class="choice-btn clip-path-button" onmouseover="playSound('hover')" onmousedown="playSound('click')">Truy cập</button>
         </div>
     </div>
   </div>
@@ -632,6 +797,7 @@
   <script>
     let accounts, tablesByLobby, historyLog, sessionStats, statsChart, dataStreamInterval, dom, matrixInterval, currentUser, liveUpdateInterval;
     let isLiveModeActive = false;
+    let three, three_req_id; // Biến cho Three.js
 
     // ----- CÁC HÀM TIỆN ÍCH -----
     function playSound(soundName) {
@@ -890,7 +1056,8 @@
         // Final transition
         setTimeout(() => {
             dom.bootScreen.classList.add('finished');
-            dom.choiceScreen.classList.remove('hidden');
+            dom.choiceScreen.classList.add('visible');
+            initChoice3D(); // Bắt đầu màn hình 3D
             startMatrixRain();
             setTimeout(() => dom.bootScreen.classList.add('hidden'), 1500);
         }, 5500);
@@ -1161,6 +1328,126 @@
             }, 500)
         }, 1600);
     }
+    
+    // ----- THREE.JS CHO MÀN HÌNH CHỌN -----
+    function initChoice3D() {
+        if (!window.THREE) {
+            console.error("Three.js library not loaded.");
+            return;
+        }
+
+        const canvas = dom.choice3dCanvas;
+        canvas.classList.add('visible');
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // Lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+        const pointLight = new THREE.PointLight(0x00d1ff, 1, 100);
+        pointLight.position.set(0, 2, 5);
+        scene.add(pointLight);
+
+        // --- Models ---
+        const models = new THREE.Group();
+        const modelPlaceholders = document.querySelectorAll('.model-placeholder');
+
+        // Model 1: AI Tool (Icosahedron)
+        const geo1 = new THREE.IcosahedronGeometry(1, 0);
+        const mat1 = new THREE.MeshStandardMaterial({ 
+            color: 0x00d1ff, 
+            metalness: 0.7, 
+            roughness: 0.3 
+        });
+        const model1 = new THREE.Mesh(geo1, mat1);
+        const wireMat1 = new THREE.MeshBasicMaterial({ color: 0x00d1ff, wireframe: true, transparent: true, opacity: 0.5 });
+        const wireModel1 = new THREE.Mesh(geo1, wireMat1);
+        wireModel1.scale.setScalar(1.01);
+        model1.add(wireModel1);
+        models.add(model1);
+
+        // Model 2: YIAN Scan (Rotating Card)
+        const geo2 = new THREE.PlaneGeometry(1.5, 2.2);
+        const mat2 = new THREE.MeshStandardMaterial({ 
+            color: 0xff00ff, 
+            metalness: 0.6, 
+            roughness: 0.4,
+            side: THREE.DoubleSide
+        });
+        const model2 = new THREE.Mesh(geo2, mat2);
+        const wireMat2 = new THREE.MeshBasicMaterial({ color: 0xff00ff, wireframe: true });
+        const wireModel2 = new THREE.Mesh(new THREE.BoxGeometry(1.5, 2.2, 0.05), wireMat2);
+        model2.add(wireModel2);
+        models.add(model2);
+
+        // Model 3: Aquarius (Torus Knot)
+        const geo3 = new THREE.TorusKnotGeometry(0.8, 0.25, 100, 16);
+        const mat3 = new THREE.MeshStandardMaterial({ 
+            color: 0xffd700, 
+            emissive: 0xb08f00,
+            metalness: 0.9, 
+            roughness: 0.2 
+        });
+        const model3 = new THREE.Mesh(geo3, mat3);
+        const light3 = new THREE.PointLight(0xffd700, 2, 5);
+        model3.add(light3);
+        models.add(model3);
+        
+        scene.add(models);
+        three = { scene, camera, renderer, models: { model1, model2, model3 }, clock: new THREE.Clock() };
+
+        // Handle window resize
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            positionModels();
+        }
+        window.addEventListener('resize', onWindowResize);
+
+        // Position models based on card locations
+        function positionModels() {
+            const isMobile = window.innerWidth <= 992;
+            const yPos = isMobile ? 1.5 : 0;
+            const xSpacing = isMobile ? 0 : 3.5;
+            
+            three.models.model1.position.set(-xSpacing, yPos, 0);
+            three.models.model2.position.set(0, isMobile ? -3.5 : yPos, 0);
+            three.models.model3.position.set(xSpacing, isMobile ? -8.5 : yPos, 0);
+        }
+        positionModels();
+
+        // Animation loop
+        function animate() {
+            three_req_id = requestAnimationFrame(animate);
+            const elapsedTime = three.clock.getElapsedTime();
+
+            three.models.model1.rotation.y = elapsedTime * 0.5;
+            three.models.model1.rotation.x = elapsedTime * 0.2;
+            three.models.model2.rotation.y = elapsedTime * 0.4;
+            three.models.model3.rotation.y = elapsedTime * 0.3;
+            three.models.model3.rotation.x = elapsedTime * 0.1;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+    }
+    
+    function stopChoice3D() {
+        if (three_req_id) {
+            cancelAnimationFrame(three_req_id);
+        }
+        if (dom && dom.choice3dCanvas) {
+            dom.choice3dCanvas.classList.remove('visible');
+        }
+        three = null;
+    }
 
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -1186,6 +1473,7 @@
         dom.bootScreen = document.getElementById('boot-screen');
         dom.bootStatusText = document.getElementById('boot-status-text');
         dom.choiceScreen = document.getElementById('choiceScreen');
+        dom.choice3dCanvas = document.getElementById('choice-3d-canvas');
         dom.loginScreen = document.getElementById('loginScreen');
         dom.appScreen = document.getElementById('app');
         dom.predictButton = document.getElementById('predictBtn');
@@ -1236,10 +1524,16 @@
         const gotoScanBtn = document.getElementById('goto-scan-tool');
         const gotoAquariusBtn = document.getElementById('goto-aquarius-tool');
 
-        gotoAiBtn.addEventListener('click', () => {
-            dom.choiceScreen.classList.add('hidden');
-            dom.loginScreen.classList.add('visible');
-        });
+        function transitionToLogin() {
+            dom.choiceScreen.classList.remove('visible');
+            stopChoice3D();
+            setTimeout(() => {
+                dom.loginScreen.classList.add('visible');
+            }, 500);
+        }
+
+        gotoAiBtn.addEventListener('click', transitionToLogin);
+        
         gotoScanBtn.addEventListener('click', () => {
             dom.modal.vipWarning.classList.add('visible');
         });
