@@ -162,17 +162,23 @@
         left: 0;
         width: 100%;
         height: 100%;
-        z-index: 10000;
+        z-index: 9999;
         opacity: 0;
         transition: opacity 1s ease-in-out;
-        pointer-events: none;
         background-color: var(--bg-dark);
     }
     .fullscreen-canvas.visible {
         opacity: 1;
     }
+    #choice-3d-canvas.interactive {
+        pointer-events: all;
+        cursor: grab;
+    }
+    #choice-3d-canvas.interactive:active {
+        cursor: grabbing;
+    }
 
-    /* --- GIAO DIỆN CHỌN GIAO THỨC --- */
+    /* --- GIAO DIỆN CHỌN GIAO THỨC 3D --- */
     #choiceScreen { 
         position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
         background: transparent; 
@@ -180,177 +186,148 @@
         z-index: 10001; text-align: center; padding: 20px; box-sizing: border-box; 
         opacity: 0; visibility: hidden;
         transition: opacity 1s 0.5s, visibility 1s 0.5s;
-        overflow-y: auto;
+        pointer-events: none;
     }
     #choiceScreen.visible {
         opacity: 1;
         visibility: visible;
     }
-
-    #choice-header {
-      margin-bottom: 2rem;
-      text-align: center;
-      width: 100%;
-    }
-    #choice-header h3 {
-      font-size: 1.5em; font-weight: 500; color: var(--text-light); 
-      margin: 0 0 10px 0; letter-spacing: 4px; text-transform: uppercase;
-    }
-    #choice-header h2 {
-      font-size: 2.8em; font-weight: 700; color: var(--primary-accent); 
-      text-shadow: 0 0 8px var(--primary-accent), 0 0 15px var(--primary-accent); 
-      margin: 0; letter-spacing: 3px;
-    }
-
-    #protocol-container {
-        display: flex;
-        justify-content: center;
-        align-items: stretch; 
-        gap: 30px;
+    #choice-ui-container {
         width: 100%;
-        max-width: 1200px;
-        perspective: 2000px;
-    }
-
-    .protocol-card {
-        background: var(--container-bg);
-        border: 1px solid var(--border-color);
-        padding: 20px;
-        width: 300px;
+        height: 100%;
         display: flex;
         flex-direction: column;
+        justify-content: space-between;
         align-items: center;
-        text-align: center;
-        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        transform-style: preserve-3d;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 0 25px rgba(0, 209, 255, 0.2), inset 0 0 15px rgba(0, 209, 255, 0.1);
+        padding: 5vh 0;
+        box-sizing: border-box;
+    }
+    #protocol-info {
+        pointer-events: all;
+        background: var(--container-bg);
+        padding: 15px 30px;
+        border: 1px solid var(--border-color);
+        max-width: 500px;
+    }
+    #protocol-title {
+        font-size: 2.2em;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 0 8px var(--primary-accent);
+        transition: all 0.3s ease;
+    }
+    #protocol-description {
+        font-size: 1.1em;
+        margin: 10px 0 0 0;
+        min-height: 2.5em; /* Giữ không gian ổn định */
+    }
+    #choice-navigation {
+        display: flex;
+        gap: 20px;
+        align-items: center;
         pointer-events: all;
     }
-    .protocol-card:hover {
-        transform: translateY(-20px) rotateX(5deg) scale(1.05);
-        border-color: var(--primary-accent);
-        box-shadow: 0 30px 50px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 209, 255, 0.5);
-    }
-
-    .protocol-card .model-placeholder {
-        height: 180px;
-        width: 100%;
-        margin-bottom: 20px;
-        pointer-events: none;
-    }
-
-    .protocol-card h3 {
-        font-size: 1.6em;
-        font-weight: 700;
-        color: var(--primary-accent);
-        margin: 0 0 10px 0;
-        text-transform: uppercase;
-    }
-    .protocol-card p {
-        font-size: 1em;
+    .nav-arrow {
+        font-size: 3em;
         color: var(--text-light);
-        flex-grow: 1; /* Đẩy button xuống dưới */
-        margin: 0 0 20px 0;
-        line-height: 1.4;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: none;
+        border: none;
+        padding: 0 20px;
     }
-    .protocol-card .choice-btn {
-        font-family: 'Rajdhani', sans-serif; font-weight: 700; padding: 15px 30px; 
-        cursor: pointer; font-size: 1.1em; text-transform: uppercase; 
-        letter-spacing: 1px; background: var(--primary-accent); color: var(--text-dark); 
-        border: none; transition: all 0.2s ease-out; width: 100%;
+    .nav-arrow:hover {
+        color: var(--primary-accent);
+        transform: scale(1.2);
+        text-shadow: 0 0 15px var(--primary-accent);
     }
-    .protocol-card .choice-btn:hover {
-        background: white; color: black; box-shadow: 0 0 20px white;
-    }
-
-    /* VIP Card (YIAN A.I) */
-    .protocol-card.yian {
-        border-color: var(--cyber-magenta);
-    }
-    .protocol-card.yian h3 { color: var(--cyber-magenta); }
-    .protocol-card.yian .choice-btn {
-        background: linear-gradient(45deg, var(--glitch-red), var(--cyber-magenta));
-        color: white;
-        animation: pulse-vip 2s infinite;
-    }
-    @keyframes pulse-vip { 0% { box-shadow: 0 0 5px var(--cyber-magenta); } 50% { box-shadow: 0 0 20px var(--glitch-red); } 100% { box-shadow: 0 0 5px var(--cyber-magenta); } }
-    
-    /* Aquarius Card (Nổi bật nhất) */
-    .protocol-card.aquarius {
-        border: 2px solid transparent;
-        background: linear-gradient(var(--bg-dark), var(--bg-dark)) padding-box,
-                    var(--gold-gradient) border-box;
-        transform: scale(1.05);
-    }
-    .protocol-card.aquarius:hover {
-        transform: translateY(-20px) rotateX(5deg) scale(1.1);
-        box-shadow: 0 30px 50px rgba(0, 0, 0, 0.6), 0 0 50px #ffd700;
-    }
-    .protocol-card.aquarius::before {
-        content: "GIAO THỨC VIP";
-        position: absolute;
-        top: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        background: var(--gold-gradient);
-        color: var(--text-dark);
-        padding: 5px 20px;
+    #select-protocol-btn {
+        font-family: 'Rajdhani', sans-serif;
         font-weight: 700;
-        font-size: 0.9em;
-        clip-path: polygon(0 0, 100% 0, 90% 100%, 10% 100%);
+        padding: 15px 40px;
+        font-size: 1.3em;
+        background: var(--primary-accent);
+        color: var(--text-dark);
+        border: none;
+        cursor: pointer;
+        animation: pulse-button 2s infinite;
     }
-    .protocol-card.aquarius h3 {
+     @keyframes pulse-button { 0% { box-shadow: 0 0 5px var(--primary-accent); } 70% { box-shadow: 0 0 25px var(--primary-accent); } 100% { box-shadow: 0 0 5px var(--primary-accent); } }
+    
+    /* --- MÀN HÌNH AQUARIUS --- */
+    #aquarius-access-screen {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+        background: transparent; 
+        z-index: 10001;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0; visibility: hidden;
+        transition: opacity 1s, visibility 1s;
+    }
+    #aquarius-access-screen.visible {
+        opacity: 1; visibility: visible;
+    }
+    #aquarius-content {
+        z-index: 1;
+        text-align: center;
+        background: var(--container-bg);
+        border: 2px solid var(--primary-yellow);
+        box-shadow: 0 0 35px var(--primary-yellow), inset 0 0 25px var(--primary-yellow);
+        padding: 40px;
+        max-width: 600px;
+    }
+    #aquarius-content h2 {
         color: var(--primary-yellow);
         text-shadow: 0 0 10px var(--primary-yellow);
+        font-size: 2.5em;
+        margin: 0 0 20px 0;
     }
-    .protocol-card.aquarius .choice-btn {
+     #aquarius-content p {
+        font-size: 1.3em;
+        font-weight: 700;
+        margin: 0 0 30px 0;
+        color: white;
+        text-shadow: 0 0 5px black;
+    }
+    #aquarius-code {
+        width: 80%;
+        padding: 15px 20px;
+        font-size: 1.2em;
+        background: var(--input-bg);
+        color: var(--text-light);
+        border: 1px solid var(--primary-yellow);
+        margin-bottom: 20px;
+        text-align: center;
+        letter-spacing: 5px;
+    }
+    #aquarius-code:focus {
+        outline: none;
+        box-shadow: 0 0 15px var(--primary-yellow);
+    }
+    .aquarius-btn-group {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+    }
+    .aquarius-btn-group button {
+        padding: 12px 25px;
+        font-size: 1.1em;
+        font-weight: 700;
+        cursor: pointer;
+    }
+    #aquarius-contact-btn {
         background: var(--gold-gradient);
-        color: black;
-        animation: pulse-aquarius 3s infinite;
+        color: var(--text-dark);
+        border: none;
     }
-    @keyframes pulse-aquarius { 0% { box-shadow: 0 0 7px #fca311; } 50% { box-shadow: 0 0 25px #ffd700; } 100% { box-shadow: 0 0 7px #fca311; } }
-
-    @media (max-width: 1024px) {
-        #choiceScreen {
-            justify-content: flex-start;
-            padding-top: 2rem;
-        }
-        #protocol-container {
-            flex-direction: column;
-            align-items: center;
-            gap: 40px;
-        }
-        .protocol-card {
-            width: 80%;
-            max-width: 400px;
-        }
-        #choice-header {
-            margin-bottom: 2rem;
-        }
+    #aquarius-back-btn {
+        background: transparent;
+        color: var(--primary-yellow);
+        border: 1px solid var(--primary-yellow);
     }
 
-    @media (max-width: 768px) {
-        .protocol-card .model-placeholder {
-            height: 150px;
-            margin-bottom: 15px;
-        }
-        .protocol-card h3 {
-            font-size: 1.4em;
-        }
-        .protocol-card p {
-            font-size: 0.9em;
-        }
-        .protocol-card {
-            padding: 15px;
-        }
-        #choice-header h2 {
-            font-size: 2em;
-        }
-    }
-    /* --- KẾT THÚC CSS GIAO DIỆN CHỌN --- */
-
+    /* --- LOGIN SCREEN --- */
     #loginScreen { opacity: 0; visibility: hidden; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10001; text-align: center; padding: 20px; box-sizing: border-box; transition: opacity 1s ease-in-out, visibility 1s ease-in-out; }
     #loginScreen.visible { opacity: 1; visibility: visible; }
     #loginScreen.hidden-overlay { opacity: 0; visibility: hidden; pointer-events: none; }
@@ -367,6 +344,14 @@
     #loginScreen button { font-family: 'Rajdhani', sans-serif; font-weight: 700; padding: 16px 35px; margin-top: 20px; cursor: pointer; font-size: 1.25em; text-transform: uppercase; letter-spacing: 1px; background: var(--primary-accent); color: var(--text-dark); border: none; transition: all 0.2s ease-out; }
     #loginScreen button:hover { background: white; color: black; box-shadow: 0 0 20px white; }
     #loginScreen button:disabled { background: #555; color: #888; cursor: not-allowed; }
+    #back-to-choice-btn {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-light);
+        margin-top: 10px;
+        padding: 10px 25px;
+        font-size: 1em;
+    }
 
     #error { color: var(--glitch-red); margin-top: 20px; height: 1.2em; font-weight: 500;}
     .custom-select-wrapper { position: relative; }
@@ -393,20 +378,14 @@
     #modal-confirm, #vip-confirm { background: var(--primary-accent); color: var(--text-dark); }
     #modal-cancel, #vip-cancel { background: transparent; color: var(--primary-accent); }
     
-    #vip-warning-modal .modal-content, #aquarius-warning-modal .modal-content { border-color: var(--glitch-red); box-shadow: 0 0 25px var(--glitch-red); }
-    #vip-warning-modal h3, #aquarius-warning-modal h3 { color: var(--glitch-red); text-shadow: 0 0 10px var(--glitch-red); margin: 0 0 20px 0; font-size: 1.5em; text-transform: uppercase; }
-    
-    #aquarius-warning-modal .modal-content { border-color: var(--primary-yellow); box-shadow: 0 0 25px var(--primary-yellow); }
-    #aquarius-warning-modal h3 { color: var(--primary-yellow); text-shadow: 0 0 10px var(--primary-yellow); }
+    #vip-warning-modal .modal-content { border-color: var(--glitch-red); box-shadow: 0 0 25px var(--glitch-red); }
+    #vip-warning-modal h3 { color: var(--glitch-red); text-shadow: 0 0 10px var(--glitch-red); margin: 0 0 20px 0; font-size: 1.5em; text-transform: uppercase; }
     
     .blinking-warning { font-weight: 700; color: var(--primary-yellow); animation: blink-warning 1.5s infinite; }
     @keyframes blink-warning { 0%, 100% { color: var(--primary-yellow); text-shadow: 0 0 5px var(--primary-yellow); } 50% { color: var(--text-light); text-shadow: none; } }
     #vip-warning-modal #vip-confirm { background: var(--glitch-red); color: white; border-color: var(--glitch-red); }
     #vip-warning-modal #vip-cancel { background: transparent; color: var(--glitch-red); border-color: var(--glitch-red); }
-    #aquarius-warning-modal #aquarius-confirm { background: var(--primary-yellow); color: var(--text-dark); border-color: var(--primary-yellow); }
-    #aquarius-warning-modal #aquarius-cancel { background: transparent; color: var(--primary-yellow); border-color: var(--primary-yellow); }
-
-
+    
     #login-footer { position: absolute; bottom: 10px; left: 0; width: 100%; text-align: center; font-size: 1em; z-index: 2; color: rgba(255,255,255,0.7); }
     #login-footer a { color: var(--cyber-cyan); text-decoration: none; font-weight: 700; }
     #login-footer p { margin: 5px 0; }
@@ -514,9 +493,7 @@
     .predict-btn:disabled { background: #555; color: #888; cursor: not-allowed; }
     .predict-btn:not(:disabled)::before { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; background: rgba(255, 255, 255, 0.3); border-radius: 50%; transform: translate(-50%, -50%); transition: width 0.5s, height 0.5s; }
     .predict-btn:not(:disabled):hover::before { width: 200%; height: 200%; }
-    .predict-btn:not(:disabled) { animation: pulse-button 2s infinite; }
-    @keyframes pulse-button { 0% { box-shadow: 0 0 5px var(--primary-accent); } 70% { box-shadow: 0 0 25px var(--primary-accent); } 100% { box-shadow: 0 0 5px var(--primary-accent); } }
-
+    
     #analysis-deck { display: none; padding-top: 20px; }
     #analysis-deck.visible { display: block; }
     #data-panel { display: flex; flex-direction: column; gap: 15px; padding: 20px; }
@@ -577,6 +554,7 @@
   <div id="scanlines-overlay"></div>
   <canvas id="choice-3d-canvas" class="fullscreen-canvas"></canvas>
   <canvas id="login-3d-canvas" class="fullscreen-canvas"></canvas>
+  <canvas id="aquarius-3d-canvas" class="fullscreen-canvas"></canvas>
 
   <div id="boot-screen">
     <div class="boot-grid-overlay"></div>
@@ -609,28 +587,15 @@
   </div>
 
   <div id="choiceScreen">
-    <div id="choice-header" class="assemble">
-        <h3 class="assemble-child" style="animation-delay: 0.1s;">LONG BẢO</h3>
-        <h2 class="assemble-child" style="animation-delay: 0.2s;">CHỌN GIAO THỨC</h2>
-    </div>
-    <div id="protocol-container" class="assemble-child" style="animation-delay: 0.4s;">
-        <div class="protocol-card clip-path-large" id="card-ai-tool">
-            <div class="model-placeholder"></div>
-            <h3>TOOL A.I THẾ HỆ 3</h3>
-            <p>Sử dụng thuật toán phân tích dữ liệu nâng cao để đưa ra dự đoán dựa trên các mẫu lịch sử.</p>
-            <button id="goto-ai-tool" class="choice-btn clip-path-button" onmouseover="playSound('hover')" onmousedown="playSound('click')">Khởi chạy</button>
+    <div id="choice-ui-container">
+        <div id="protocol-info" class="clip-path-large">
+            <h2 id="protocol-title"></h2>
+            <p id="protocol-description"></p>
         </div>
-        <div class="protocol-card yian clip-path-large" id="card-scan-tool">
-            <div class="model-placeholder"></div>
-            <h3>YIAN A.I QUÉT LÁ BÀI</h3>
-            <p>Công nghệ quét và nhận dạng lá bài trong thời gian thực, yêu cầu cấu hình và vốn mạnh.</p>
-            <button id="goto-scan-tool" class="choice-btn clip-path-button" onmouseover="playSound('hover')" onmousedown="playSound('click')">Khởi chạy</button>
-        </div>
-        <div class="protocol-card aquarius clip-path-large" id="card-aquarius-tool">
-            <div class="model-placeholder"></div>
-            <h3>AQUARIUS A.I</h3>
-            <p>Giao thức thử nghiệm Beta, ứng dụng nguyên lý lượng tử để tìm kiếm các khả năng tiềm ẩn.</p>
-            <button id="goto-aquarius-tool" class="choice-btn clip-path-button" onmouseover="playSound('hover')" onmousedown="playSound('click')">Truy cập</button>
+        <div id="choice-navigation">
+            <button id="prev-protocol-btn" class="nav-arrow">ᐊ</button>
+            <button id="select-protocol-btn" class="clip-path-button">CHỌN GIAO THỨC</button>
+            <button id="next-protocol-btn" class="nav-arrow">ᐅ</button>
         </div>
     </div>
   </div>
@@ -662,12 +627,25 @@
             <div id="mode-loading-bar"></div>
         </div>
         <button id="loginBtn" onclick="checkCode()" class="clip-path-button assemble-child" style="animation-delay: 0.8s;" onmouseover="playSound('hover')" onmousedown="playSound('click')">[ Thiết lập Kết nối ]</button>
+        <button id="back-to-choice-btn" class="clip-path-button">Quay Lại Giao Thức</button>
         <p id="error"></p>
     </div>
     <footer id="login-footer">
         <p>ĐĂNG KÍ TẠI : WWW.F168.CODES</p>
         <p>LIÊN HỆ LONG BẢO : <a href="https://t.me/longbaoF168" target="_blank">https://t.me/longbaoF168</a></p>
     </footer>
+  </div>
+
+  <div id="aquarius-access-screen">
+      <div id="aquarius-content" class="clip-path-large">
+          <h2>GIAO THỨC AQUARIUS</h2>
+          <p>X100 LẦN TÀI KHOẢN KHÔNG PHẢI LÀ CHUYỆN TRONG MƠ!</p>
+          <input type="text" id="aquarius-code" class="clip-path-angular" placeholder="NHẬP MÃ TRUY CẬP ĐẶC BIỆT"/>
+          <div class="aquarius-btn-group">
+              <button id="aquarius-contact-btn" class="clip-path-button">LIÊN HỆ @LONGBAOF168</button>
+              <button id="aquarius-back-btn" class="clip-path-button">QUAY LẠI</button>
+          </div>
+      </div>
   </div>
 
   <div id="app" class="hidden">
@@ -793,17 +771,6 @@
     </div>
   </div>
 
-  <div id="aquarius-warning-modal" class="modal-overlay clip-path-large">
-    <div class="modal-content">
-        <h3>CẢNH BÁO GIAO THỨC AQUARIUS</h3>
-        <p>CHỨC NĂNG ĐANG TRONG GIAI ĐOẠN THỬ NGHIỆM BETA.<br>VUI LÒNG LIÊN HỆ <strong style="color: var(--primary-yellow)">@LONGBAOF168</strong> ĐỂ YÊU CẦU QUYỀN TRUY CẬP.</p>
-        <div class="modal-buttons">
-            <button id="aquarius-confirm" class="clip-path-button">LIÊN HỆ NGAY</button>
-            <button id="aquarius-cancel" class="clip-path-button">ĐÓNG</button>
-        </div>
-    </div>
-  </div>
-
   <div id="low-energy-modal" class="modal-overlay clip-path-large">
     <div class="modal-content" style="border-color: var(--glitch-red);">
         <h3 style="color: var(--glitch-red); text-shadow: 0 0 10px var(--glitch-red);">CẢNH BÁO NĂNG LƯỢNG</h3>
@@ -824,6 +791,12 @@
     let accounts, tablesByLobby, historyLog, sessionStats, statsChart, dataStreamInterval, dom, currentUser, liveUpdateInterval;
     let isLiveModeActive = false;
     let three_scenes = {}; // Quản lý các scene 3D
+    let currentProtocolIndex = 0;
+    const protocols = [
+        { id: 'ai_tool', name: 'TOOL A.I THẾ HỆ 3', description: 'Sử dụng thuật toán phân tích dữ liệu nâng cao để đưa ra dự đoán dựa trên các mẫu lịch sử.', color: 0x00d1ff },
+        { id: 'yian_tool', name: 'YIAN A.I QUÉT LÁ BÀI', description: 'Công nghệ quét và nhận dạng lá bài trong thời gian thực, yêu cầu cấu hình và vốn mạnh.', color: 0xff00ff },
+        { id: 'aquarius_tool', name: 'AQUARIUS A.I', description: 'Giao thức thử nghiệm Beta, ứng dụng nguyên lý lượng tử để tìm kiếm các khả năng tiềm ẩn.', color: 0xffd700 }
+    ];
 
     // ----- CÁC HÀM TIỆN ÍCH -----
     function playSound(soundName) {
@@ -1347,10 +1320,7 @@
 
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         scene.add(ambientLight);
-        const pointLight = new THREE.PointLight(0x00d1ff, 1, 100);
-        pointLight.position.set(0, 2, 5);
-        scene.add(pointLight);
-
+        
         const models = new THREE.Group();
         scene.add(models);
 
@@ -1360,34 +1330,34 @@
             setupChoiceScene();
         } else if (sceneName === 'login') {
             setupLoginScene();
+        } else if (sceneName === 'aquarius') {
+            setupAquariusScene();
         }
 
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-            if (sceneName === 'choice') {
-                // Thêm một chút độ trễ để đảm bảo layout CSS đã cập nhật
-                setTimeout(positionChoiceModels, 100);
-            }
         }
         window.addEventListener('resize', onWindowResize, false);
         three_scenes[sceneName].resizeListener = onWindowResize;
 
         function animate() {
+            if (!three_scenes[sceneName]) return; // Stop animation if scene is stopped
             three_scenes[sceneName].req_id = requestAnimationFrame(animate);
             const elapsedTime = three_scenes[sceneName].clock.getElapsedTime();
 
-            // Animation logic
             if (sceneName === 'choice' && three_scenes.choice) {
-                three_scenes.choice.models.model1.rotation.y = elapsedTime * 0.5;
-                three_scenes.choice.models.model1.rotation.x = elapsedTime * 0.2;
-                three_scenes.choice.models.model2.rotation.y = elapsedTime * 0.4;
-                three_scenes.choice.models.model3.rotation.y = elapsedTime * 0.3;
-                three_scenes.choice.models.model3.rotation.x = elapsedTime * 0.1;
+                // Xoay model hiện tại
+                const currentModel = three_scenes.choice.models.group.children[currentProtocolIndex];
+                if(currentModel) {
+                    currentModel.rotation.y += 0.005;
+                }
             } else if (sceneName === 'login' && three_scenes.login) {
                  three_scenes.login.models.main.rotation.x = elapsedTime * 0.1;
                  three_scenes.login.models.main.rotation.y = elapsedTime * 0.2;
+            } else if (sceneName === 'aquarius' && three_scenes.aquarius) {
+                three_scenes.aquarius.models.particles.rotation.y = elapsedTime * 0.1;
             }
 
             renderer.render(scene, camera);
@@ -1400,7 +1370,6 @@
         if (sceneData) {
             if (sceneData.req_id) {
                 cancelAnimationFrame(sceneData.req_id);
-                sceneData.req_id = null;
             }
             if (sceneData.resizeListener) {
                 window.removeEventListener('resize', sceneData.resizeListener);
@@ -1413,86 +1382,114 @@
 
     function setupChoiceScene() {
         const sceneData = three_scenes.choice;
-        const models = sceneData.models;
+        const modelsGroup = sceneData.models.group = new THREE.Group();
+        sceneData.scene.add(modelsGroup);
+        sceneData.camera.position.z = 4;
 
-        const geo1 = new THREE.IcosahedronGeometry(1, 0);
-        const mat1 = new THREE.MeshStandardMaterial({ color: 0x00d1ff, metalness: 0.7, roughness: 0.3 });
-        models.model1 = new THREE.Mesh(geo1, mat1);
-        const wireMat1 = new THREE.MeshBasicMaterial({ color: 0x00d1ff, wireframe: true, transparent: true, opacity: 0.5 });
-        const wireModel1 = new THREE.Mesh(geo1, wireMat1);
-        wireModel1.scale.setScalar(1.01);
-        models.model1.add(wireModel1);
-
-        const geo2 = new THREE.PlaneGeometry(1.5, 2.2);
-        const mat2 = new THREE.MeshStandardMaterial({ color: 0xff00ff, metalness: 0.6, roughness: 0.4, side: THREE.DoubleSide });
-        models.model2 = new THREE.Mesh(geo2, mat2);
-        const wireMat2 = new THREE.MeshBasicMaterial({ color: 0xff00ff, wireframe: true });
-        const wireModel2 = new THREE.Mesh(new THREE.BoxGeometry(1.5, 2.2, 0.05), wireMat2);
-        models.model2.add(wireModel2);
-
-        const geo3 = new THREE.TorusKnotGeometry(0.8, 0.25, 100, 16);
-        const mat3 = new THREE.MeshStandardMaterial({ color: 0xffd700, emissive: 0xb08f00, metalness: 0.9, roughness: 0.2 });
-        models.model3 = new THREE.Mesh(geo3, mat3);
-        const light3 = new THREE.PointLight(0xffd700, 2, 5);
-        models.model3.add(light3);
+        // Model 1: AI Tool (Icosahedron)
+        const geo1 = new THREE.IcosahedronGeometry(1.2, 1);
+        const mat1 = new THREE.MeshStandardMaterial({ color: protocols[0].color, metalness: 0.7, roughness: 0.3, wireframe: true });
+        const model1 = new THREE.Mesh(geo1, mat1);
         
-        sceneData.scene.add(models.model1, models.model2, models.model3);
-        positionChoiceModels();
-    }
+        // Model 2: YIAN Scan (Rotating Card)
+        const geo2 = new THREE.TorusGeometry(1, 0.2, 16, 100);
+        const mat2 = new THREE.MeshStandardMaterial({ color: protocols[1].color, metalness: 0.6, roughness: 0.4, wireframe: true });
+        const model2 = new THREE.Mesh(geo2, mat2);
 
-    function positionChoiceModels() {
-        if (!three_scenes.choice) return;
-
-        const { camera, models } = three_scenes.choice;
-        const cardElements = {
-            model1: document.getElementById('card-ai-tool'),
-            model2: document.getElementById('card-scan-tool'),
-            model3: document.getElementById('card-aquarius-tool'),
-        };
-
-        for (const modelKey in cardElements) {
-            const element = cardElements[modelKey];
-            const model = models[modelKey];
-            if (element && model) {
-                const rect = element.getBoundingClientRect();
-                const placeholder = element.querySelector('.model-placeholder');
-                const placeholderRect = placeholder.getBoundingClientRect();
-
-                // Tính toán vị trí trung tâm của placeholder
-                const centerX = placeholderRect.left + placeholderRect.width / 2;
-                const centerY = placeholderRect.top + placeholderRect.height / 2;
-
-                // Chuyển đổi tọa độ màn hình (pixel) sang tọa độ chuẩn hóa (-1 đến 1)
-                const x = (centerX / window.innerWidth) * 2 - 1;
-                const y = -(centerY / window.innerHeight) * 2 + 1;
-
-                // Chuyển đổi sang tọa độ 3D
-                const vector = new THREE.Vector3(x, y, 0.5);
-                vector.unproject(camera);
-                const dir = vector.sub(camera.position).normalize();
-                const distance = -camera.position.z / dir.z;
-                const pos = camera.position.clone().add(dir.multiplyScalar(distance));
-                
-                model.position.copy(pos);
-            }
-        }
+        // Model 3: Aquarius (Torus Knot)
+        const geo3 = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
+        const mat3 = new THREE.MeshStandardMaterial({ color: protocols[2].color, emissive: protocols[2].color, metalness: 0.9, roughness: 0.2, wireframe: true });
+        const model3 = new THREE.Mesh(geo3, mat3);
+        
+        modelsGroup.add(model1, model2, model3);
+        updateProtocolView(true); // Cập nhật lần đầu
     }
 
     function setupLoginScene() {
         const sceneData = three_scenes.login;
-        const models = sceneData.models;
-        
         const geo = new THREE.TorusKnotGeometry(10, 3, 100, 16, 2, 3);
-        const mat = new THREE.PointsMaterial({
-            size: 0.05,
-            color: 0x00d1ff,
-            sizeAttenuation: true
+        const mat = new THREE.PointsMaterial({ size: 0.05, color: 0x00d1ff, sizeAttenuation: true });
+        sceneData.models.main = new THREE.Points(geo, mat);
+        sceneData.models.main.scale.set(0.2, 0.2, 0.2);
+        sceneData.scene.add(sceneData.models.main);
+    }
+    
+    function setupAquariusScene() {
+        const sceneData = three_scenes.aquarius;
+        const particlesGeo = new THREE.BufferGeometry;
+        const count = 5000;
+        const positions = new Float32Array(count * 3);
+        for(let i = 0; i < count * 3; i++) {
+            positions[i] = (Math.random() - 0.5) * 10;
+        }
+        particlesGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const particlesMat = new THREE.PointsMaterial({
+            size: 0.02,
+            color: varToColor(getComputedStyle(document.documentElement).getPropertyValue('--primary-yellow')),
+            blending: THREE.AdditiveBlending
         });
-        models.main = new THREE.Points(geo, mat);
-        models.main.scale.set(0.2, 0.2, 0.2);
-        sceneData.scene.add(models.main);
+        sceneData.models.particles = new THREE.Points(particlesGeo, particlesMat);
+        sceneData.scene.add(sceneData.models.particles);
+    }
+    
+    function varToColor(str) {
+        return new THREE.Color(str.trim());
     }
 
+    function updateProtocolView(isInitial = false) {
+        const sceneData = three_scenes.choice;
+        if (!sceneData) return;
+
+        const protocol = protocols[currentProtocolIndex];
+        dom.protocolTitle.textContent = protocol.name;
+        dom.protocolDescription.textContent = protocol.description;
+        dom.protocolTitle.style.color = `#${protocol.color.toString(16).padStart(6, '0')}`;
+        dom.protocolTitle.style.textShadow = `0 0 8px #${protocol.color.toString(16).padStart(6, '0')}`;
+
+        sceneData.models.group.children.forEach((model, index) => {
+            const targetZ = (index === currentProtocolIndex) ? 0 : 10;
+            const targetOpacity = (index === currentProtocolIndex) ? 1 : 0;
+            
+            // Simple visibility toggle for now, can be replaced with animation library like GSAP
+            model.position.z = targetZ;
+            model.material.opacity = targetOpacity;
+            model.visible = (index === currentProtocolIndex);
+        });
+    }
+
+    function selectCurrentProtocol() {
+        playSound('click');
+        const selectedProtocol = protocols[currentProtocolIndex];
+        switch(selectedProtocol.id) {
+            case 'ai_tool':
+                transitionToLogin();
+                break;
+            case 'yian_tool':
+                dom.vipWarningModal.classList.add('visible');
+                break;
+            case 'aquarius_tool':
+                transitionToAquarius();
+                break;
+        }
+    }
+
+    function transitionToLogin() {
+        dom.choiceScreen.classList.remove('visible');
+        stop3DScene('choice');
+        setTimeout(() => {
+            init3DScene('login');
+            dom.loginScreen.classList.add('visible');
+        }, 500);
+    }
+
+    function transitionToAquarius() {
+        dom.choiceScreen.classList.remove('visible');
+        stop3DScene('choice');
+        setTimeout(() => {
+            init3DScene('aquarius');
+            dom.aquariusScreen.classList.add('visible');
+        }, 500);
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
         accounts = {
@@ -1519,6 +1516,7 @@
         dom.choiceScreen = document.getElementById('choiceScreen');
         dom.choice3dCanvas = document.getElementById('choice-3d-canvas');
         dom.login3dCanvas = document.getElementById('login-3d-canvas');
+        dom.aquarius3dCanvas = document.getElementById('aquarius-3d-canvas');
         dom.loginScreen = document.getElementById('loginScreen');
         dom.appScreen = document.getElementById('app');
         dom.predictButton = document.getElementById('predictBtn');
@@ -1545,66 +1543,62 @@
         dom.modal.container = document.getElementById('confirmation-modal');
         dom.modal.confirmBtn = document.getElementById('modal-confirm');
         dom.modal.cancelBtn = document.getElementById('modal-cancel');
-        dom.modal.vipWarning = document.getElementById('vip-warning-modal');
+        dom.vipWarningModal = document.getElementById('vip-warning-modal');
         dom.modal.vipConfirmBtn = document.getElementById('vip-confirm');
         dom.modal.vipCancelBtn = document.getElementById('vip-cancel');
         dom.lowEnergyModal = document.getElementById('low-energy-modal');
         dom.lowEnergyConfirmBtn = document.getElementById('low-energy-confirm');
-        dom.modal.aquariusWarning = document.getElementById('aquarius-warning-modal');
-        dom.modal.aquariusConfirmBtn = document.getElementById('aquarius-confirm');
-        dom.modal.aquariusCancelBtn = document.getElementById('aquarius-cancel');
+        dom.aquariusScreen = document.getElementById('aquarius-access-screen');
         dom.modeSelect = document.getElementById('mode-select');
         dom.loginButton = document.getElementById('loginBtn');
         dom.modeLoadingContainer = document.getElementById('mode-loading-container');
         dom.modeLoadingBar = document.getElementById('mode-loading-bar');
+        dom.protocolTitle = document.getElementById('protocol-title');
+        dom.protocolDescription = document.getElementById('protocol-description');
 
+        // Event Listeners for new UI
+        document.getElementById('select-protocol-btn').addEventListener('click', selectCurrentProtocol);
+        document.getElementById('next-protocol-btn').addEventListener('click', () => {
+            currentProtocolIndex = (currentProtocolIndex + 1) % protocols.length;
+            updateProtocolView();
+        });
+        document.getElementById('prev-protocol-btn').addEventListener('click', () => {
+            currentProtocolIndex = (currentProtocolIndex - 1 + protocols.length) % protocols.length;
+            updateProtocolView();
+        });
+        document.getElementById('back-to-choice-btn').addEventListener('click', () => {
+            dom.loginScreen.classList.remove('visible');
+            stop3DScene('login');
+            setTimeout(() => {
+                init3DScene('choice');
+                dom.choiceScreen.classList.add('visible');
+            }, 500);
+        });
+        document.getElementById('aquarius-back-btn').addEventListener('click', () => {
+             dom.aquariusScreen.classList.remove('visible');
+            stop3DScene('aquarius');
+            setTimeout(() => {
+                init3DScene('choice');
+                dom.choiceScreen.classList.add('visible');
+            }, 500);
+        });
+        document.getElementById('aquarius-contact-btn').addEventListener('click', () => {
+            window.open('https://t.me/longbaoF168', '_blank');
+        });
 
         dom.lowEnergyConfirmBtn.addEventListener('click', () => {
             dom.lowEnergyModal.classList.remove('visible');
             playSound('click');
         });
 
-        const gotoAiBtn = document.getElementById('goto-ai-tool');
-        const gotoScanBtn = document.getElementById('goto-scan-tool');
-        const gotoAquariusBtn = document.getElementById('goto-aquarius-tool');
-
-        function transitionToLogin() {
-            dom.choiceScreen.classList.remove('visible');
-            stop3DScene('choice');
-            setTimeout(() => {
-                init3DScene('login');
-                dom.loginScreen.classList.add('visible');
-            }, 500);
-        }
-
-        gotoAiBtn.addEventListener('click', transitionToLogin);
-        
-        gotoScanBtn.addEventListener('click', () => {
-            dom.modal.vipWarning.classList.add('visible');
-        });
-        gotoAquariusBtn.addEventListener('click', () => {
-            playSound('click');
-            dom.modal.aquariusWarning.classList.add('visible');
-        });
-
         dom.modal.vipConfirmBtn.addEventListener('click', () => {
             playSound('click');
-            dom.modal.vipWarning.classList.remove('visible');
+            dom.vipWarningModal.classList.remove('visible');
             window.open('http://www.soilabai.site', '_blank');
         });
         dom.modal.vipCancelBtn.addEventListener('click', () => {
             playSound('click');
-            dom.modal.vipWarning.classList.remove('visible');
-        });
-
-        dom.modal.aquariusConfirmBtn.addEventListener('click', () => {
-            playSound('click');
-            dom.modal.aquariusWarning.classList.remove('visible');
-            window.open('https://t.me/longbaoF168', '_blank');
-        });
-        dom.modal.aquariusCancelBtn.addEventListener('click', () => {
-            playSound('click');
-            dom.modal.aquariusWarning.classList.remove('visible');
+            dom.vipWarningModal.classList.remove('visible');
         });
 
         const selectWrapper = document.querySelector('.custom-select-wrapper');
