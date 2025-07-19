@@ -155,8 +155,8 @@
     }
     /* --- KẾT THÚC CSS INTRO MỚI --- */
 
-    /* --- GIAO DIỆN CHỌN GIAO THỨC 3D MỚI --- */
-    #choice-3d-canvas {
+    /* --- CANVAS 3D --- */
+    .fullscreen-canvas {
         position: fixed;
         top: 0;
         left: 0;
@@ -165,12 +165,14 @@
         z-index: 10000;
         opacity: 0;
         transition: opacity 1s ease-in-out;
-        pointer-events: none; /* Cho phép click xuyên qua canvas */
+        pointer-events: none;
+        background-color: var(--bg-dark);
     }
-    #choice-3d-canvas.visible {
+    .fullscreen-canvas.visible {
         opacity: 1;
     }
 
+    /* --- GIAO DIỆN CHỌN GIAO THỨC --- */
     #choiceScreen { 
         position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
         background: transparent; 
@@ -178,6 +180,7 @@
         z-index: 10001; text-align: center; padding: 20px; box-sizing: border-box; 
         opacity: 0; visibility: hidden;
         transition: opacity 1s 0.5s, visibility 1s 0.5s;
+        overflow-y: auto;
     }
     #choiceScreen.visible {
         opacity: 1;
@@ -185,8 +188,9 @@
     }
 
     #choice-header {
-      margin-bottom: 4rem;
+      margin-bottom: 2rem;
       text-align: center;
+      width: 100%;
     }
     #choice-header h3 {
       font-size: 1.5em; font-weight: 500; color: var(--text-light); 
@@ -201,7 +205,7 @@
     #protocol-container {
         display: flex;
         justify-content: center;
-        align-items: stretch; /* Làm cho các card cao bằng nhau */
+        align-items: stretch; 
         gap: 30px;
         width: 100%;
         max-width: 1200px;
@@ -222,6 +226,7 @@
         position: relative;
         overflow: hidden;
         box-shadow: 0 0 25px rgba(0, 209, 255, 0.2), inset 0 0 15px rgba(0, 209, 255, 0.1);
+        pointer-events: all;
     }
     .protocol-card:hover {
         transform: translateY(-20px) rotateX(5deg) scale(1.05);
@@ -233,6 +238,7 @@
         height: 180px;
         width: 100%;
         margin-bottom: 20px;
+        pointer-events: none;
     }
 
     .protocol-card h3 {
@@ -254,7 +260,6 @@
         cursor: pointer; font-size: 1.1em; text-transform: uppercase; 
         letter-spacing: 1px; background: var(--primary-accent); color: var(--text-dark); 
         border: none; transition: all 0.2s ease-out; width: 100%;
-        pointer-events: all;
     }
     .protocol-card .choice-btn:hover {
         background: white; color: black; box-shadow: 0 0 20px white;
@@ -307,7 +312,11 @@
     }
     @keyframes pulse-aquarius { 0% { box-shadow: 0 0 7px #fca311; } 50% { box-shadow: 0 0 25px #ffd700; } 100% { box-shadow: 0 0 7px #fca311; } }
 
-    @media (max-width: 992px) {
+    @media (max-width: 1024px) {
+        #choiceScreen {
+            justify-content: flex-start;
+            padding-top: 2rem;
+        }
         #protocol-container {
             flex-direction: column;
             align-items: center;
@@ -321,12 +330,30 @@
             margin-bottom: 2rem;
         }
     }
+
+    @media (max-width: 768px) {
+        .protocol-card .model-placeholder {
+            height: 150px;
+            margin-bottom: 15px;
+        }
+        .protocol-card h3 {
+            font-size: 1.4em;
+        }
+        .protocol-card p {
+            font-size: 0.9em;
+        }
+        .protocol-card {
+            padding: 15px;
+        }
+        #choice-header h2 {
+            font-size: 2em;
+        }
+    }
     /* --- KẾT THÚC CSS GIAO DIỆN CHỌN --- */
 
     #loginScreen { opacity: 0; visibility: hidden; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10001; text-align: center; padding: 20px; box-sizing: border-box; transition: opacity 1s ease-in-out, visibility 1s ease-in-out; }
     #loginScreen.visible { opacity: 1; visibility: visible; }
     #loginScreen.hidden-overlay { opacity: 0; visibility: hidden; pointer-events: none; }
-    #matrix-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
     #login-content { z-index: 1; background: var(--container-bg); backdrop-filter: blur(5px); padding: 30px; border: 1px solid var(--border-color); width: 100%; max-width: 420px; display: flex; flex-direction: column; align-items: center;}
     #login-logo { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; margin-bottom: 20px; border: 3px solid var(--primary-accent); box-shadow: 0 0 20px var(--primary-accent); }
     #loginScreen h2 { font-size: 2.2em; font-weight: 700; color: var(--primary-accent); text-shadow: 0 0 5px var(--primary-accent), 0 0 10px var(--primary-accent); margin-top: 0; margin-bottom: 15px; letter-spacing: 2px; }
@@ -548,7 +575,8 @@
 </head>
 <body>
   <div id="scanlines-overlay"></div>
-  <canvas id="choice-3d-canvas"></canvas>
+  <canvas id="choice-3d-canvas" class="fullscreen-canvas"></canvas>
+  <canvas id="login-3d-canvas" class="fullscreen-canvas"></canvas>
 
   <div id="boot-screen">
     <div class="boot-grid-overlay"></div>
@@ -579,8 +607,6 @@
         <div id="boot-progress-bar-new"></div>
     </div>
   </div>
-
-  <canvas id="matrix-canvas"></canvas>
 
   <div id="choiceScreen">
     <div id="choice-header" class="assemble">
@@ -795,9 +821,9 @@
   <audio id="sfx-deal" src="deal.mp3"></audio>
   <audio id="sfx-alert" src="sfx-alert.mp3"></audio>
   <script>
-    let accounts, tablesByLobby, historyLog, sessionStats, statsChart, dataStreamInterval, dom, matrixInterval, currentUser, liveUpdateInterval;
+    let accounts, tablesByLobby, historyLog, sessionStats, statsChart, dataStreamInterval, dom, currentUser, liveUpdateInterval;
     let isLiveModeActive = false;
-    let three, three_req_id; // Biến cho Three.js
+    let three_scenes = {}; // Quản lý các scene 3D
 
     // ----- CÁC HÀM TIỆN ÍCH -----
     function playSound(soundName) {
@@ -894,9 +920,8 @@
             dom.energyDisplay.classList.remove('hidden');
 
             dom.loginScreen.classList.remove('visible');
-            dom.loginScreen.classList.add('hidden-overlay');
+            stop3DScene('login'); // Dừng scene 3D của login
             dom.appScreen.classList.remove("hidden");
-            clearInterval(matrixInterval); 
             if (dom.settings.musicToggle.checked) dom.sound.music.play().catch(e => {});
         } else {
             error.textContent = "LỖI: KHÓA MÃ HÓA KHÔNG HỢP LỆ";
@@ -990,35 +1015,6 @@
         });
         historyContainer.scrollTop = historyContainer.scrollHeight;
     }
-
-    function startMatrixRain() {
-        const canvas = dom.matrixCanvas;
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        const alphabet = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        const fontSize = 16;
-        const columns = canvas.width / fontSize;
-        const rainDrops = Array.from({ length: columns }).fill(1);
-        
-        const draw = () => {
-            ctx.fillStyle = 'rgba(2, 10, 23, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#0F0';
-            ctx.font = `${fontSize}px monospace`;
-            rainDrops.forEach((y, i) => {
-                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-                ctx.fillText(text, i * fontSize, y * fontSize);
-                if (y * fontSize > canvas.height && Math.random() > 0.975) {
-                    rainDrops[i] = 0;
-                }
-                rainDrops[i]++;
-            });
-        };
-        if(matrixInterval) clearInterval(matrixInterval);
-        matrixInterval = setInterval(draw, 33);
-    }
     
     // INTRO MỚI: Giao diện HUD
     async function startBootSequence() {
@@ -1057,8 +1053,7 @@
         setTimeout(() => {
             dom.bootScreen.classList.add('finished');
             dom.choiceScreen.classList.add('visible');
-            initChoice3D(); // Bắt đầu màn hình 3D
-            startMatrixRain();
+            init3DScene('choice'); // Bắt đầu màn hình 3D
             setTimeout(() => dom.bootScreen.classList.add('hidden'), 1500);
         }, 5500);
     }
@@ -1329,14 +1324,17 @@
         }, 1600);
     }
     
-    // ----- THREE.JS CHO MÀN HÌNH CHỌN -----
-    function initChoice3D() {
+    // ----- QUẢN LÝ SCENE 3D -----
+    function init3DScene(sceneName) {
         if (!window.THREE) {
             console.error("Three.js library not loaded.");
             return;
         }
+        if (three_scenes[sceneName] && three_scenes[sceneName].req_id) {
+            return; // Scene đã chạy
+        }
 
-        const canvas = dom.choice3dCanvas;
+        const canvas = dom[`${sceneName}3dCanvas`];
         canvas.classList.add('visible');
 
         const scene = new THREE.Scene();
@@ -1347,106 +1345,152 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-        // Lights
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         scene.add(ambientLight);
         const pointLight = new THREE.PointLight(0x00d1ff, 1, 100);
         pointLight.position.set(0, 2, 5);
         scene.add(pointLight);
 
-        // --- Models ---
         const models = new THREE.Group();
-        const modelPlaceholders = document.querySelectorAll('.model-placeholder');
-
-        // Model 1: AI Tool (Icosahedron)
-        const geo1 = new THREE.IcosahedronGeometry(1, 0);
-        const mat1 = new THREE.MeshStandardMaterial({ 
-            color: 0x00d1ff, 
-            metalness: 0.7, 
-            roughness: 0.3 
-        });
-        const model1 = new THREE.Mesh(geo1, mat1);
-        const wireMat1 = new THREE.MeshBasicMaterial({ color: 0x00d1ff, wireframe: true, transparent: true, opacity: 0.5 });
-        const wireModel1 = new THREE.Mesh(geo1, wireMat1);
-        wireModel1.scale.setScalar(1.01);
-        model1.add(wireModel1);
-        models.add(model1);
-
-        // Model 2: YIAN Scan (Rotating Card)
-        const geo2 = new THREE.PlaneGeometry(1.5, 2.2);
-        const mat2 = new THREE.MeshStandardMaterial({ 
-            color: 0xff00ff, 
-            metalness: 0.6, 
-            roughness: 0.4,
-            side: THREE.DoubleSide
-        });
-        const model2 = new THREE.Mesh(geo2, mat2);
-        const wireMat2 = new THREE.MeshBasicMaterial({ color: 0xff00ff, wireframe: true });
-        const wireModel2 = new THREE.Mesh(new THREE.BoxGeometry(1.5, 2.2, 0.05), wireMat2);
-        model2.add(wireModel2);
-        models.add(model2);
-
-        // Model 3: Aquarius (Torus Knot)
-        const geo3 = new THREE.TorusKnotGeometry(0.8, 0.25, 100, 16);
-        const mat3 = new THREE.MeshStandardMaterial({ 
-            color: 0xffd700, 
-            emissive: 0xb08f00,
-            metalness: 0.9, 
-            roughness: 0.2 
-        });
-        const model3 = new THREE.Mesh(geo3, mat3);
-        const light3 = new THREE.PointLight(0xffd700, 2, 5);
-        model3.add(light3);
-        models.add(model3);
-        
         scene.add(models);
-        three = { scene, camera, renderer, models: { model1, model2, model3 }, clock: new THREE.Clock() };
 
-        // Handle window resize
+        three_scenes[sceneName] = { scene, camera, renderer, models, clock: new THREE.Clock() };
+
+        if (sceneName === 'choice') {
+            setupChoiceScene();
+        } else if (sceneName === 'login') {
+            setupLoginScene();
+        }
+
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-            positionModels();
+            if (sceneName === 'choice') {
+                // Thêm một chút độ trễ để đảm bảo layout CSS đã cập nhật
+                setTimeout(positionChoiceModels, 100);
+            }
         }
-        window.addEventListener('resize', onWindowResize);
+        window.addEventListener('resize', onWindowResize, false);
+        three_scenes[sceneName].resizeListener = onWindowResize;
 
-        // Position models based on card locations
-        function positionModels() {
-            const isMobile = window.innerWidth <= 992;
-            const yPos = isMobile ? 1.5 : 0;
-            const xSpacing = isMobile ? 0 : 3.5;
-            
-            three.models.model1.position.set(-xSpacing, yPos, 0);
-            three.models.model2.position.set(0, isMobile ? -3.5 : yPos, 0);
-            three.models.model3.position.set(xSpacing, isMobile ? -8.5 : yPos, 0);
-        }
-        positionModels();
-
-        // Animation loop
         function animate() {
-            three_req_id = requestAnimationFrame(animate);
-            const elapsedTime = three.clock.getElapsedTime();
+            three_scenes[sceneName].req_id = requestAnimationFrame(animate);
+            const elapsedTime = three_scenes[sceneName].clock.getElapsedTime();
 
-            three.models.model1.rotation.y = elapsedTime * 0.5;
-            three.models.model1.rotation.x = elapsedTime * 0.2;
-            three.models.model2.rotation.y = elapsedTime * 0.4;
-            three.models.model3.rotation.y = elapsedTime * 0.3;
-            three.models.model3.rotation.x = elapsedTime * 0.1;
+            // Animation logic
+            if (sceneName === 'choice' && three_scenes.choice) {
+                three_scenes.choice.models.model1.rotation.y = elapsedTime * 0.5;
+                three_scenes.choice.models.model1.rotation.x = elapsedTime * 0.2;
+                three_scenes.choice.models.model2.rotation.y = elapsedTime * 0.4;
+                three_scenes.choice.models.model3.rotation.y = elapsedTime * 0.3;
+                three_scenes.choice.models.model3.rotation.x = elapsedTime * 0.1;
+            } else if (sceneName === 'login' && three_scenes.login) {
+                 three_scenes.login.models.main.rotation.x = elapsedTime * 0.1;
+                 three_scenes.login.models.main.rotation.y = elapsedTime * 0.2;
+            }
 
             renderer.render(scene, camera);
         }
         animate();
     }
-    
-    function stopChoice3D() {
-        if (three_req_id) {
-            cancelAnimationFrame(three_req_id);
+
+    function stop3DScene(sceneName) {
+        const sceneData = three_scenes[sceneName];
+        if (sceneData) {
+            if (sceneData.req_id) {
+                cancelAnimationFrame(sceneData.req_id);
+                sceneData.req_id = null;
+            }
+            if (sceneData.resizeListener) {
+                window.removeEventListener('resize', sceneData.resizeListener);
+            }
+            const canvas = dom[`${sceneName}3dCanvas`];
+            if (canvas) canvas.classList.remove('visible');
+            three_scenes[sceneName] = null;
         }
-        if (dom && dom.choice3dCanvas) {
-            dom.choice3dCanvas.classList.remove('visible');
+    }
+
+    function setupChoiceScene() {
+        const sceneData = three_scenes.choice;
+        const models = sceneData.models;
+
+        const geo1 = new THREE.IcosahedronGeometry(1, 0);
+        const mat1 = new THREE.MeshStandardMaterial({ color: 0x00d1ff, metalness: 0.7, roughness: 0.3 });
+        models.model1 = new THREE.Mesh(geo1, mat1);
+        const wireMat1 = new THREE.MeshBasicMaterial({ color: 0x00d1ff, wireframe: true, transparent: true, opacity: 0.5 });
+        const wireModel1 = new THREE.Mesh(geo1, wireMat1);
+        wireModel1.scale.setScalar(1.01);
+        models.model1.add(wireModel1);
+
+        const geo2 = new THREE.PlaneGeometry(1.5, 2.2);
+        const mat2 = new THREE.MeshStandardMaterial({ color: 0xff00ff, metalness: 0.6, roughness: 0.4, side: THREE.DoubleSide });
+        models.model2 = new THREE.Mesh(geo2, mat2);
+        const wireMat2 = new THREE.MeshBasicMaterial({ color: 0xff00ff, wireframe: true });
+        const wireModel2 = new THREE.Mesh(new THREE.BoxGeometry(1.5, 2.2, 0.05), wireMat2);
+        models.model2.add(wireModel2);
+
+        const geo3 = new THREE.TorusKnotGeometry(0.8, 0.25, 100, 16);
+        const mat3 = new THREE.MeshStandardMaterial({ color: 0xffd700, emissive: 0xb08f00, metalness: 0.9, roughness: 0.2 });
+        models.model3 = new THREE.Mesh(geo3, mat3);
+        const light3 = new THREE.PointLight(0xffd700, 2, 5);
+        models.model3.add(light3);
+        
+        sceneData.scene.add(models.model1, models.model2, models.model3);
+        positionChoiceModels();
+    }
+
+    function positionChoiceModels() {
+        if (!three_scenes.choice) return;
+
+        const { camera, models } = three_scenes.choice;
+        const cardElements = {
+            model1: document.getElementById('card-ai-tool'),
+            model2: document.getElementById('card-scan-tool'),
+            model3: document.getElementById('card-aquarius-tool'),
+        };
+
+        for (const modelKey in cardElements) {
+            const element = cardElements[modelKey];
+            const model = models[modelKey];
+            if (element && model) {
+                const rect = element.getBoundingClientRect();
+                const placeholder = element.querySelector('.model-placeholder');
+                const placeholderRect = placeholder.getBoundingClientRect();
+
+                // Tính toán vị trí trung tâm của placeholder
+                const centerX = placeholderRect.left + placeholderRect.width / 2;
+                const centerY = placeholderRect.top + placeholderRect.height / 2;
+
+                // Chuyển đổi tọa độ màn hình (pixel) sang tọa độ chuẩn hóa (-1 đến 1)
+                const x = (centerX / window.innerWidth) * 2 - 1;
+                const y = -(centerY / window.innerHeight) * 2 + 1;
+
+                // Chuyển đổi sang tọa độ 3D
+                const vector = new THREE.Vector3(x, y, 0.5);
+                vector.unproject(camera);
+                const dir = vector.sub(camera.position).normalize();
+                const distance = -camera.position.z / dir.z;
+                const pos = camera.position.clone().add(dir.multiplyScalar(distance));
+                
+                model.position.copy(pos);
+            }
         }
-        three = null;
+    }
+
+    function setupLoginScene() {
+        const sceneData = three_scenes.login;
+        const models = sceneData.models;
+        
+        const geo = new THREE.TorusKnotGeometry(10, 3, 100, 16, 2, 3);
+        const mat = new THREE.PointsMaterial({
+            size: 0.05,
+            color: 0x00d1ff,
+            sizeAttenuation: true
+        });
+        models.main = new THREE.Points(geo, mat);
+        models.main.scale.set(0.2, 0.2, 0.2);
+        sceneData.scene.add(models.main);
     }
 
 
@@ -1474,6 +1518,7 @@
         dom.bootStatusText = document.getElementById('boot-status-text');
         dom.choiceScreen = document.getElementById('choiceScreen');
         dom.choice3dCanvas = document.getElementById('choice-3d-canvas');
+        dom.login3dCanvas = document.getElementById('login-3d-canvas');
         dom.loginScreen = document.getElementById('loginScreen');
         dom.appScreen = document.getElementById('app');
         dom.predictButton = document.getElementById('predictBtn');
@@ -1500,7 +1545,6 @@
         dom.modal.container = document.getElementById('confirmation-modal');
         dom.modal.confirmBtn = document.getElementById('modal-confirm');
         dom.modal.cancelBtn = document.getElementById('modal-cancel');
-        dom.matrixCanvas = document.getElementById('matrix-canvas');
         dom.modal.vipWarning = document.getElementById('vip-warning-modal');
         dom.modal.vipConfirmBtn = document.getElementById('vip-confirm');
         dom.modal.vipCancelBtn = document.getElementById('vip-cancel');
@@ -1526,8 +1570,9 @@
 
         function transitionToLogin() {
             dom.choiceScreen.classList.remove('visible');
-            stopChoice3D();
+            stop3DScene('choice');
             setTimeout(() => {
+                init3DScene('login');
                 dom.loginScreen.classList.add('visible');
             }, 500);
         }
